@@ -1,0 +1,78 @@
+---
+sidebar_position: 3
+---
+
+# Como contribuir
+
+Contribuicoes sao bem-vindas. Esta pagina descreve o fluxo de trabalho padrao
+do projeto, do registro de uma issue ate a abertura de um pull request, alem do
+padrao de commits adotado.
+
+## Fluxo: issue, branch, pull request
+
+1. **Abra ou escolha uma issue.** Toda contribuicao comeca por uma issue que
+   descreve o problema ou a melhoria. Se ainda nao existir, crie uma no
+   repositorio correspondente e descreva o contexto, o comportamento esperado e
+   os criterios de aceitacao.
+
+2. **Crie uma branch a partir da branch de desenvolvimento.** O trabalho parte
+   da branch de desenvolvimento do repositorio (normalmente `develop`). Use um
+   nome curto e descritivo seguindo o tipo da mudanca:
+
+   - `feat/<descricao>` para novas funcionalidades.
+   - `fix/<descricao>` para correcao de defeitos.
+   - `docs/<descricao>` para documentacao.
+   - `refactor/<descricao>` para refatoracao sem mudanca de comportamento.
+
+   ```bash
+   git checkout develop
+   git pull
+   git checkout -b feat/minha-contribuicao
+   ```
+
+3. **Implemente seguindo o padrao de commits.** Veja a secao de TDD abaixo.
+
+4. **Abra um pull request para a branch de desenvolvimento.** Descreva o que foi
+   feito, vincule a issue relacionada (por exemplo, `Closes #123`) e aguarde a
+   revisao. O merge so acontece apos aprovacao e com o gate de qualidade
+   passando.
+
+## Padrao de commits com TDD
+
+O projeto adota desenvolvimento orientado a testes (TDD). Onde houver logica
+testavel, os commits seguem o ciclo vermelho/verde em commits separados:
+
+1. **Commit RED**: adiciona o teste que descreve o comportamento desejado. Esse
+   teste deve falhar, porque a implementacao ainda nao existe. O commit registra
+   a intencao antes da solucao.
+
+2. **Commit GREEN**: adiciona a implementacao minima que faz o teste passar.
+
+Manter RED e GREEN em commits distintos deixa o historico claro: fica evidente
+qual teste motivou cada trecho de codigo. Depois do verde, e comum um terceiro
+passo de refatoracao, mantendo os testes passando.
+
+Boas praticas de mensagem de commit:
+
+- Use mensagens curtas e no imperativo (por exemplo, `adiciona teste de extracao
+  de metricas`).
+- Faca commits pequenos e focados em uma unica mudanca logica.
+- A autoria do commit e de quem contribui.
+
+## Revisao e qualidade
+
+- Todo pull request passa por **code review** de outra pessoa do time antes do
+  merge.
+- O projeto usa analise estatica (SonarCloud) como **gate de qualidade**. O PR
+  precisa passar no gate (cobertura, duplicacao, code smells e vulnerabilidades
+  dentro dos limites definidos) para ser integrado.
+- Garanta que a suite de testes passa localmente antes de abrir o PR.
+
+## Definition of Done
+
+Uma contribuicao e considerada concluida quando:
+
+- A funcionalidade ou correcao esta implementada e coberta por testes.
+- A suite de testes passa e o gate de qualidade esta verde.
+- O codigo foi revisado e aprovado.
+- A documentacao relevante foi atualizada, quando aplicavel.
