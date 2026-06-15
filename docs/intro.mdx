@@ -1,47 +1,52 @@
 ---
 sidebar_position: 1
+slug: /intro
 ---
 
-# Tutorial Intro
+# Sobre o produto
 
-Let's discover **Docusaurus in less than 5 minutes**.
+O **MeasureSoftGram** e uma plataforma de medicao e avaliacao de qualidade de
+software. Ele coleta metricas de fontes externas (como SonarCloud e GitHub),
+organiza essas metricas em um modelo de qualidade e apresenta indicadores que
+ajudam equipes a entender e acompanhar a saude do seu codigo ao longo do tempo.
 
-## Getting Started
+A ferramenta nasceu no contexto academico das disciplinas de Engenharia de
+Produto de Software (EPS) e Metodos de Desenvolvimento de Software (MDS) da
+Universidade de Brasilia (FGA), e e mantida como projeto de codigo aberto pela
+organizacao [fga-eps-mds](https://github.com/fga-eps-mds).
 
-Get started by **creating a new site**.
+## Para que serve
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+- **Medir**: extrair metricas brutas de qualidade a partir de relatorios de
+  analise estatica e de dados de repositorio.
+- **Avaliar**: combinar essas metricas em um modelo de qualidade configuravel,
+  produzindo valores comparaveis entre projetos e entre versoes.
+- **Acompanhar**: visualizar a evolucao da qualidade e apoiar decisoes de
+  melhoria continua.
 
-### What you'll need
+## Publico-alvo
 
-- [Node.js](https://nodejs.org/en/download/) version 20.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+- Equipes de desenvolvimento que querem acompanhar qualidade de forma objetiva.
+- Estudantes e pesquisadores interessados em modelos de qualidade de software.
+- Pessoas que desejam contribuir com um projeto academico de codigo aberto.
 
-## Generate a new site
+## Visao geral da arquitetura
 
-Generate a new Docusaurus site using the **classic template**.
+O MeasureSoftGram e dividido em modulos independentes, cada um com uma
+responsabilidade bem definida:
 
-The classic template will automatically be added to your project after you run the command:
+- **Core**: nucleo de calculo do modelo de qualidade. Recebe metricas e produz
+  os valores das medidas, subcaracteristicas e caracteristicas.
+- **Service**: backend que armazena e manipula os dados do MeasureSoftGram
+  (metricas, configuracoes, analises realizadas).
+- **CLI**: interface de linha de comando para extrair metricas e calcular o
+  modelo a partir do terminal.
+- **Parser**: responsavel por interpretar e normalizar os dados de entrada.
+- **Front**: interface web para visualizacao dos resultados.
+- **Action**: integracao com pipelines de CI para coletar e enviar metricas
+  automaticamente.
+- **AI** e **Plugin**: modulos complementares que estendem as capacidades da
+  plataforma.
 
-```bash
-npm init docusaurus@latest my-website classic
-```
-
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
-
-The command also installs all necessary dependencies you need to run Docusaurus.
-
-## Start your site
-
-Run the development server:
-
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+Para comecar a usar, siga para a pagina [Como usar](./como-usar.mdx). Se quiser
+contribuir, veja [Como contribuir](./como-contribuir.mdx).

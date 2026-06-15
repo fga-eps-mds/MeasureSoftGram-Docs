@@ -5,8 +5,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'MeasureSoftGram',
+  tagline: 'Plataforma de medicao e avaliacao de qualidade de software',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -19,20 +19,23 @@ const config: Config = {
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/MeasureSoftGram-Docs/',
+  trailingSlash: true,
 
   // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'fga-eps-mds', // Usually your GitHub org/user name.
-  projectName: 'MeasureSoftGram-Docs', // Usually your repo name.
+  organizationName: 'fga-eps-mds', // GitHub org.
+  projectName: 'MeasureSoftGram-Docs', // Repo name.
 
   onBrokenLinks: 'throw',
 
-  // Even if you don't use internationalization, you can use this field to set
-  // useful metadata like html lang. For example, if your site is Chinese, you
-  // may want to replace "en" with "zh-Hans".
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'throw',
+    },
+  },
+
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
+    defaultLocale: 'pt-BR',
+    locales: ['pt-BR'],
   },
 
   presets: [
@@ -41,26 +44,10 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/fga-eps-mds/MeasureSoftGram-Docs/tree/main/',
         },
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
-          // Useful options to enforce blogging best practices
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
-        },
+        blog: false,
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -69,27 +56,25 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     colorMode: {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'My Site',
+      title: 'MeasureSoftGram',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'Logo do MeasureSoftGram',
         src: 'img/logo.svg',
       },
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
+          sidebarId: 'comunidadeSidebar',
           position: 'left',
-          label: 'Tutorial',
+          label: 'Documentacao',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/fga-eps-mds',
           label: 'GitHub',
           position: 'right',
         },
@@ -99,46 +84,54 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Documentacao',
           items: [
             {
-              label: 'Tutorial',
+              label: 'Sobre o produto',
               to: '/docs/intro',
             },
-          ],
-        },
-        {
-          title: 'Community',
-          items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              label: 'Como usar',
+              to: '/docs/como-usar',
             },
             {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
-            },
-            {
-              label: 'X',
-              href: 'https://x.com/docusaurus',
+              label: 'Como contribuir',
+              to: '/docs/como-contribuir',
             },
           ],
         },
         {
-          title: 'More',
+          title: 'Repositorios',
           items: [
             {
-              label: 'Blog',
-              to: '/blog',
+              label: 'Repositorios ativos',
+              to: '/docs/repos-ativos',
             },
             {
-              label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              label: 'Repositorios originais',
+              to: '/docs/repos-originais',
+            },
+            {
+              label: 'Organizacao no GitHub',
+              href: 'https://github.com/fga-eps-mds',
+            },
+          ],
+        },
+        {
+          title: 'Comunidade',
+          items: [
+            {
+              label: 'Como contribuir',
+              to: '/docs/como-contribuir',
+            },
+            {
+              label: 'Configurar o TestPyPI',
+              to: '/docs/configurar-testpypi',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `MeasureSoftGram - fga-eps-mds. Construido com Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

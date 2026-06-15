@@ -11,32 +11,32 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: 'Mede qualidade',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Coleta metricas de fontes como SonarCloud e GitHub e as organiza em um
+        modelo de qualidade de software claro e comparavel.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Modular',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Arquitetura dividida em modulos (Core, Service, CLI, Parser, Front e
+        outros), cada um com responsabilidade bem definida.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Aberto a contribuicoes',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Projeto academico e de codigo aberto. Veja o guia de contribuicao para
+        abrir issues, enviar pull requests e seguir o padrao de commits.
       </>
     ),
   },
