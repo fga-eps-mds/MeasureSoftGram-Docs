@@ -1,0 +1,107 @@
+---
+sidebar_position: 5
+---
+
+# Política de branches
+
+O MeasureSoftGram organiza o trabalho com um fluxo baseado no
+[Git Flow](https://nvie.com/posts/a-successful-git-branching-model/). As branches
+seguem uma nomenclatura padrão para manter o histórico organizado e rastreável.
+Esta política vale para os repositórios de código; repositórios só de
+documentação usam uma versão simplificada, descrita no fim.
+
+## Repositórios de código
+
+### `main`
+
+Branch principal, com o código na última versão estável para o usuário final.
+
+- Existe uma única `main` no projeto.
+- Commits diretos não são permitidos.
+- Mudanças só entram por pull request, a partir de uma `release` ou `hotfix`.
+
+### `develop`
+
+Branch de integração do desenvolvimento: é dela que partem as novidades.
+
+- Existe uma única `develop`.
+- É derivada da `main` e mantida sincronizada com as demais branches.
+
+### `feat`
+
+Branch de uma nova funcionalidade.
+
+- Derivada da `develop`.
+- Mesclada de volta na `develop` quando a funcionalidade fica pronta.
+- Cada funcionalidade tem a sua branch, no padrão:
+
+```bash
+feat/<codigo-da-issue>
+
+# exemplo
+feat/US003
+```
+
+### `release`
+
+Branch com um lote de funcionalidades que serão promovidas para a `main`.
+
+- Derivada da `develop`.
+- Mesclada na `main` quando concluída.
+- Nenhuma funcionalidade entra na `main` a não ser via `release`.
+- Aceita apenas correções (`fix`).
+
+```bash
+release/v<numero>.<numero>.<numero>
+
+# exemplo
+release/v1.0.28
+```
+
+### `fix`
+
+Branch para corrigir bugs encontrados em uma `release`.
+
+- Derivada da `release`.
+- Mesclada de volta na `release` quando concluída.
+
+```bash
+fix/<codigo-da-issue>
+
+# exemplo
+fix/BUG002
+```
+
+### `hotfix`
+
+Branch para resolver incidentes já em produção (`main`).
+
+- Derivada da `main`.
+- Mesclada de volta na `main` quando concluída.
+- A cada hotfix, a versão do produto é incrementada.
+
+```bash
+hotfix/v<numero>.<numero>.<numero>
+
+# exemplo
+hotfix/v2.4.3
+```
+
+## Repositórios de documentação
+
+Repositórios que contêm apenas documentação usam um fluxo mais simples: as
+branches saem da `main` e são nomeadas pelo código da issue.
+
+```bash
+docs/<codigo-da-issue>
+
+# exemplo
+docs/DOC006
+```
+
+Incidentes na documentação em produção seguem o padrão `hotfix/<nome-do-artefato>`.
+
+## Referências
+
+- [A successful Git branching model](https://nvie.com/posts/a-successful-git-branching-model/) (Vincent Driessen).
+- [Gitflow Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) (Atlassian).
