@@ -1,0 +1,107 @@
+---
+sidebar_position: 1
+slug: /primeiros-passos
+---
+
+# Primeiros passos
+
+Este guia leva você do zero ao seu primeiro relatório de qualidade usando a
+**CLI**, o caminho mais rápido para ver o MeasureSoftGram funcionando: roda na
+sua máquina, sem servidor nem banco de dados.
+
+Para o detalhamento de cada comando e para o modo hospedado (com Service e
+Front), veja [Como usar](./como-usar.mdx).
+
+## Pré-requisitos
+
+- **Python 3.9 ou superior.**
+- Um **relatório de análise do SonarQube/SonarCloud** em JSON do projeto que você
+  quer avaliar (veja o passo 3).
+
+## 1. Instale a CLI
+
+```bash
+pip install msgram
+```
+
+Recomendamos um ambiente virtual para isolar a instalação:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install msgram
+```
+
+Confirme que o comando ficou disponível:
+
+```bash
+msgram --help
+```
+
+## 2. Crie o arquivo de configuração
+
+O `init` gera a configuração padrão do modelo de qualidade (as características,
+medidas, pesos e limites) em `.msgram/msgram.json`:
+
+```bash
+msgram init
+```
+
+Você pode inspecionar o modelo gerado a qualquer momento:
+
+```bash
+msgram list
+```
+
+:::tip[Ajuste o modelo ao seu projeto]
+O `msgram.json` é seu ponto de partida, não uma camisa de força. Pesos e limites
+de cada medida podem ser editados. Os termos que aparecem ali estão explicados em
+[Modelo de qualidade](./modelo-de-qualidade.mdx) e no [Glossário](./glossario.mdx).
+:::
+
+## 3. Obtenha as métricas do seu projeto
+
+A CLI parte de um **relatório de análise do SonarQube/SonarCloud** em JSON. Se o
+seu projeto já é analisado no SonarCloud, você pode obter esse relatório pela API
+de medições do Sonar e salvar os arquivos JSON numa pasta, por exemplo
+`analytics-raw-data/`.
+
+:::note[O que a CLI espera]
+O `extract` lê os JSON de análise e produz um arquivo de métricas que o cálculo
+consome. Ele não roda a análise do Sonar por você: o ponto de partida é o
+relatório JSON já exportado.
+:::
+
+## 4. Extraia as métricas
+
+Aponte o `extract` para a pasta com os JSON (`-sp`) e para onde salvar o
+resultado (`-ep`):
+
+```bash
+msgram extract -sp analytics-raw-data -ep .msgram
+```
+
+## 5. Calcule a qualidade
+
+O `calculate` percorre a hierarquia do modelo (medidas, subcaracterísticas,
+características e a nota final) e mostra o resultado. Use `-o tabular` para uma
+saída legível no terminal:
+
+```bash
+msgram calculate -ep .msgram -cp .msgram -o tabular
+```
+
+Os formatos de saída disponíveis são `csv`, `json`, `tabular`, `raw` e `tree`.
+Para gerar um arquivo em vez de imprimir, use `-o csv` ou `-o json`.
+
+## Pronto
+
+Você acabou de percorrer o fluxo completo do modo offline: **instalar, configurar,
+extrair e calcular**. O resultado é a avaliação de qualidade do seu projeto,
+seguindo o modelo do MeasureSoftGram.
+
+A partir daqui:
+
+- Entenda o que cada número significa em [Modelo de qualidade](./modelo-de-qualidade.mdx).
+- Veja todos os comandos e o modo hospedado em [Como usar](./como-usar.mdx).
+- Conheça os módulos e como eles se integram em [Arquitetura](./arquitetura.mdx).
