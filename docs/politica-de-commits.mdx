@@ -1,0 +1,97 @@
+---
+sidebar_position: 6
+---
+
+# Política de commits
+
+O MeasureSoftGram segue o padrão
+[Conventional Commits](https://www.conventionalcommits.org). Uma mensagem de
+commit consiste em um **cabeçalho**, um **corpo** opcional e um **rodapé**
+opcional.
+
+```bash
+<tipo>(<escopo opcional>): <título>
+
+<corpo opcional>
+
+<rodapé opcional>
+```
+
+O cabeçalho é obrigatório. Exemplos:
+
+```bash
+fix(integration-erp): fix error fetching customer data
+improve(app-toolbox): improves data search performance
+docs: add docker project start instructions
+```
+
+## Tipos
+
+O `<tipo>` deve ser um dos seguintes:
+
+| Tipo | Uso |
+| --- | --- |
+| `build` | Alterações no sistema de build ou em dependências externas. |
+| `ci` | Alterações nos arquivos e scripts de configuração de CI. |
+| `cd` | Alterações nos arquivos e scripts de configuração de CD. |
+| `docs` | Somente documentação. |
+| `feat` | Um novo recurso. |
+| `fix` | Correção de bug da aplicação. |
+| `perf` | Alteração que melhora o desempenho, sem mudar o uso. |
+| `refactor` | Alteração que não corrige bug nem muda o uso. |
+| `improve` | Alteração que melhora o comportamento de um recurso. |
+| `style` | Formatação que não afeta o significado do código (espaços, ponto e vírgula). |
+| `static` | Alterações em arquivos estáticos (JSON, imagens). |
+| `test` | Adição ou correção de testes. |
+| `revert` | Reversão de um commit anterior. |
+
+## Título
+
+- Use o imperativo no presente: "change", não "changed" nem "changes".
+- Não capitalize a primeira letra.
+- Sem ponto final.
+- Mantenha o cabeçalho curto (em torno de 50 caracteres) para facilitar a
+  leitura nas ferramentas de git.
+
+Uma frase que ajuda a formular: "Se aplicado, este commit vai `<título>`". Por
+exemplo, para a criação de um módulo: "create new module".
+
+## Corpo
+
+O corpo é opcional e vem após uma linha em branco. Use-o para explicar **o quê**
+e **por quê**, não o **como**. Recomenda-se quebrar as linhas em torno de 80
+caracteres.
+
+## Rodapé
+
+O rodapé é opcional e vem após uma linha em branco depois do corpo.
+
+- Para vincular uma issue: `fix #123` ou `closes #123`.
+- Para creditar múltiplos autores:
+
+  ```bash
+  Co-authored-by: Nome <email@exemplo.com>
+  ```
+
+- Para reverter, comece o cabeçalho com `revert:` seguido do cabeçalho do commit
+  revertido, e no corpo indique `This reverts commit <hash>.`.
+
+## Boas práticas
+
+- Escreva os commits em inglês, de forma sucinta e objetiva.
+- Faça commits pequenos e focados em uma única mudança lógica.
+- Escolha o tipo mais adequado à alteração.
+- Não use encurtadores de link nem links afiliados no corpo.
+
+:::tip[Automatize com Commitizen]
+A ferramenta [Commitizen](https://commitizen-tools.github.io/commitizen/) ajuda a
+criar commits no padrão e a gerar changelogs.
+
+```bash
+pip install --user -U commitizen
+cz commit
+```
+:::
+
+Para o ciclo de commits com TDD (RED e GREEN separados) adotado no projeto, veja
+[Como contribuir](./como-contribuir.mdx).

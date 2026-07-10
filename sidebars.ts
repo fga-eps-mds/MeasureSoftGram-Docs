@@ -45,7 +45,12 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Contribuicao',
       collapsed: false,
-      items: ['como-contribuir'],
+      items: [
+        'como-contribuir',
+        'codigo-de-conduta',
+        'politica-de-branches',
+        'politica-de-commits',
+      ],
     },
   ],
 };
