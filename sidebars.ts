@@ -4,19 +4,49 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 
 /**
  * Sidebar manual da documentacao da comunidade do MeasureSoftGram.
- * A ordem aqui define a navegacao lateral e os links proximo/anterior.
+ *
+ * A navegacao segue o framework Diataxis, que separa o conteudo pela
+ * necessidade do leitor:
+ *   - Conceitos (explanation): entender o que e e como funciona.
+ *   - Primeiros passos (tutorial): aprender fazendo.
+ *   - Repositorios (how-to): onde vive cada modulo.
+ *   - Referencia (reference): consulta tecnica.
+ *   - Contribuicao (how-to): participar do projeto.
+ *
+ * A ordem dentro de cada categoria define os links proximo/anterior.
  */
 const sidebars: SidebarsConfig = {
   comunidadeSidebar: [
-    'intro',
-    'modelo-de-qualidade',
-    'arquitetura',
-    'glossario',
-    'como-usar',
-    'como-contribuir',
-    'repos-ativos',
-    'repos-originais',
-    'configurar-testpypi',
+    {
+      type: 'category',
+      label: 'Conceitos',
+      collapsed: false,
+      items: ['intro', 'modelo-de-qualidade', 'arquitetura', 'glossario'],
+    },
+    {
+      type: 'category',
+      label: 'Primeiros passos',
+      collapsed: false,
+      items: ['como-usar'],
+    },
+    {
+      type: 'category',
+      label: 'Repositorios',
+      collapsed: false,
+      items: ['repos-ativos', 'repos-originais'],
+    },
+    {
+      type: 'category',
+      label: 'Referencia',
+      collapsed: false,
+      items: ['configurar-testpypi'],
+    },
+    {
+      type: 'category',
+      label: 'Contribuicao',
+      collapsed: false,
+      items: ['como-contribuir'],
+    },
   ],
 };
 
