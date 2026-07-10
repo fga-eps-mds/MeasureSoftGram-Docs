@@ -10,6 +10,7 @@ const sidebars: SidebarsConfig = {
   comunidadeSidebar: [
     'intro',
     'modelo-de-qualidade',
+    'arquitetura',
     'como-usar',
     'como-contribuir',
     'repos-ativos',
