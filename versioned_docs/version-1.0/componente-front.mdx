@@ -1,0 +1,60 @@
+---
+sidebar_position: 6
+---
+
+# Front
+
+O **Front** é a interface web do MeasureSoftGram, escrita em **Next.js** e
+**React**. É por ele que se acompanha a evolução da qualidade ao longo do tempo,
+consumindo o [Service](./componente-service.mdx) via HTTP. Veja o papel dele em
+[Arquitetura](./arquitetura.mdx).
+
+## Pré-requisitos
+
+- **Node.js 20.x.**
+- **pnpm** (o build de produção usa a versão `9.0.0`, definida no `Dockerfile` e
+  no `packageManager` do `package.json`; o README do repositório ainda cita
+  `10.x`, desatualizado frente a esse pino), com o `corepack` habilitado.
+- O [Service](./componente-service.mdx) rodando em `http://localhost:8080`, já que
+  o Front consome a API dele.
+
+## Setup local
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Front.git
+cd 2026.1-MeasureSoftGram-Front
+cp .env.example .env
+corepack enable
+corepack prepare pnpm@9.0.0 --activate
+pnpm install
+```
+
+As chaves do `.env` são: `SERVICE_URL`, `NEXT_PUBLIC_API_URL`,
+`LOGIN_REDIRECT_URL`, `GITHUB_CLIENT_ID`.
+
+## Como rodar
+
+```bash
+pnpm dev
+```
+
+A interface sobe em **http://localhost:3000**. Também é possível subir por Docker
+com `docker compose up --build`.
+
+## Como testar
+
+```bash
+pnpm test   # testes em modo watch, só nos arquivos alterados
+pnpm lint
+```
+
+:::note[Comandos de teste e mock em andamento]
+- O `pnpm test` roda em modo *watch*. Para uma execução única em CI existe
+  `pnpm run ci:test`, mas ele reescreve os snapshots. Um script de teste
+  determinístico (uma passada, sem reescrever snapshot) é acompanhado na
+  [issue #66](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Front/issues/66),
+  junto do alinhamento da versão do pnpm.
+- Um **modo mock** para rodar a UI sem backend ainda não existe; é acompanhado na
+  [issue #64](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Front/issues/64).
+  Por ora, suba o Service antes do Front.
+:::

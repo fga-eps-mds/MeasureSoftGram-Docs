@@ -1,0 +1,83 @@
+---
+sidebar_position: 3
+---
+
+# Parser
+
+O **Parser** é a biblioteca Python que interpreta os dados brutos das fontes
+externas (JSON do SonarQube, API do GitHub) e os transforma numa representação
+interna comum, consumida pelo restante do MeasureSoftGram. É uma **biblioteca**,
+usada diretamente pela CLI. Veja onde ela entra no fluxo em
+[Arquitetura](./arquitetura.mdx).
+
+Publicado no PyPI como **`msgram-parser`**; o pacote importável é `genericparser`.
+
+## Plugins
+
+O Parser traz dois plugins de entrada, registrados internamente:
+
+- **`sonarqube`**: lê o JSON estático de análise do SonarQube/SonarCloud.
+- **`github`**: lê dados da API do GitHub (por exemplo, tempo de feedback de CI).
+
+## Pré-requisitos
+
+- **Python 3.9 ou superior.**
+- `pip`. Como o Core, é biblioteca pura: sem Docker nem banco.
+
+## Setup local
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Parser.git
+cd 2026.1-MeasureSoftGram-Parser
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+O `requirements.txt` já inclui `tox` e `coverage`, então o ambiente de teste vem
+junto.
+
+## Como usar como biblioteca
+
+O ponto de entrada é a classe `GenericParser`:
+
+```python
+from genericparser.genericparser import GenericParser
+
+parser = GenericParser()
+resultado = parser.parse(
+    input_value=dados,        # dict/list, ou o caminho de um arquivo JSON
+    type_input="sonarqube",   # ou "github"
+    filters=None,
+)
+```
+
+O `input_value` aceita tanto os dados em memória quanto o caminho de um arquivo
+JSON. Um `type_input` fora dos plugins registrados resulta em erro.
+
+## Como testar
+
+Via **tox**:
+
+```bash
+tox
+```
+
+Para o lint (o mesmo do CI):
+
+```bash
+flake8 --extend-ignore=E501,W292,F401
+```
+
+:::note[flake8 fora do requirements]
+Hoje o `flake8` não está no `requirements.txt`, então para lintar localmente é
+preciso instalá-lo à parte (`pip install flake8`). A padronização do lint com os
+demais pacotes é acompanhada na
+[issue #11 do Parser](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Parser/issues/11).
+:::
+
+## Publicação
+
+Publicado no PyPI de produção por Trusted Publishing, junto com o Core (que deve
+ser publicado antes da CLI). O fluxo está em
+[Como publicar no PyPI](./publicar-no-pypi.mdx).

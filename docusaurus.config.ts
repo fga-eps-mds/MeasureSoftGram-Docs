@@ -61,6 +61,15 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           editUrl:
             'https://github.com/fga-eps-mds/MeasureSoftGram-Docs/tree/main/',
+          // Doc unica versionada: a 1.0 e a versao estavel servida por padrao;
+          // o conteudo em edicao (pasta docs/) fica sob /next ate a proxima versao.
+          lastVersion: '1.0',
+          versions: {
+            current: {
+              label: 'Em desenvolvimento',
+              path: 'next',
+            },
+          },
         },
         blog: false,
         theme: {
@@ -87,6 +96,10 @@ const config: Config = {
           sidebarId: 'comunidadeSidebar',
           position: 'left',
           label: 'Documentacao',
+        },
+        {
+          type: 'docsVersionDropdown',
+          position: 'right',
         },
         {
           href: 'https://github.com/fga-eps-mds',
