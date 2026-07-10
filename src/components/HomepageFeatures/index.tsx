@@ -11,32 +11,32 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Mede qualidade',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'Mede qualidade de forma objetiva',
+    Svg: require('@site/static/img/feature-medir.svg').default,
     description: (
       <>
-        Coleta metricas de fontes como SonarCloud e GitHub e as organiza em um
-        modelo de qualidade de software claro e comparavel.
+        Coleta metricas do SonarCloud e do GitHub e as agrega num modelo de
+        qualidade, produzindo uma nota unica e comparavel entre versoes.
       </>
     ),
   },
   {
-    title: 'Modular',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    title: 'Modular por design',
+    Svg: require('@site/static/img/feature-modular.svg').default,
     description: (
       <>
-        Arquitetura dividida em modulos (Core, Service, CLI, Parser, Front e
-        outros), cada um com responsabilidade bem definida.
+        Um ecossistema de modulos independentes (Core, Service, CLI, Parser,
+        Front, Action e outros), cada um com uma responsabilidade bem definida.
       </>
     ),
   },
   {
     title: 'Aberto a contribuicoes',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    Svg: require('@site/static/img/feature-contribuir.svg').default,
     description: (
       <>
-        Projeto academico e de codigo aberto. Veja o guia de contribuicao para
-        abrir issues, enviar pull requests e seguir o padrao de commits.
+        Projeto academico e de codigo aberto sob a licenca AGPLv3. Veja o guia
+        de contribuicao para abrir issues e enviar pull requests.
       </>
     ),
   },

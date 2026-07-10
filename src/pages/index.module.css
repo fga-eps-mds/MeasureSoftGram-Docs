@@ -20,4 +20,37 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+}
+
+.badges img {
+  display: block;
+}
+
+.quickstart {
+  max-width: 420px;
+  margin: 0 auto 1.75rem;
+  text-align: left;
+}
+
+.whoUses {
+  padding: 3.5rem 0;
+  background: var(--ifm-color-emphasis-100);
+}
+
+.whoUsesText {
+  max-width: 640px;
+  margin: 1rem auto 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
