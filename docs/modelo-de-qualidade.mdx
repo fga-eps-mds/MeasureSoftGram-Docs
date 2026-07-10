@@ -1,0 +1,208 @@
+---
+sidebar_position: 2
+slug: /modelo-de-qualidade
+---
+
+# Modelo de qualidade
+
+O coração do MeasureSoftGram é o **modelo de qualidade**: o mecanismo que pega
+métricas cruas e dispersas (cobertura de testes, complexidade, duplicação, tempo
+de feedback de CI) e as transforma em uma **nota única e comparável** de
+qualidade do software.
+
+Esta página explica como essa transformação acontece: a hierarquia de níveis, a
+normalização das métricas e a fórmula de agregação. Todo o cálculo vive no
+módulo **Core** (`msgram-core`), independente de banco de dados, servidor ou
+rede.
+
+:::info Por que um modelo, e não só métricas
+Olhar "cobertura = 73%" isolado não diz se o projeto está saudável. As
+ferramentas de análise produzem dezenas de números em escalas diferentes. O
+modelo de qualidade organiza esses números numa estrutura hierárquica e os
+agrega passo a passo, até chegar a indicadores interpretáveis por
+característica e a uma nota final de release.
+:::
+
+## A hierarquia
+
+O modelo sobe por cinco níveis. Cada nível é uma agregação do nível anterior:
+
+```
+metric              dado bruto por arquivo/projeto (coverage, complexity, ...)
+   |
+   v  normalizacao para [0, 1]
+measure             nota de 0 a 1 por medida (ex: test_coverage)
+   |
+   v  norma L2 ponderada
+subcharacteristic   aspecto de qualidade (ex: testing_status, modifiability)
+   |
+   v  norma L2 ponderada
+characteristic      uma das 4 dimensoes da ISO/IEC 25010
+   |
+   v  norma L2 ponderada
+tsqmi               nota unica final da release
+```
+
+| Nível | Em palavras | Definição técnica |
+| --- | --- | --- |
+| **metric** | O número cru que a ferramenta reporta. | Valor bruto por arquivo ou projeto, coletado do SonarCloud ou do GitHub. |
+| **measure** | Traduz a métrica crua para uma nota de 0 a 1, independente da escala original. | Valor normalizado em `[0, 1]`. |
+| **subcharacteristic** | Junta medidas relacionadas num aspecto (ex: "status de testes"). | Agregação ponderada das medidas que a compõem. |
+| **characteristic** | Uma das quatro grandes dimensões de qualidade. | Agregação ponderada das subcaracterísticas. |
+| **tsqmi** | A nota final da release. Quanto mais perto de 1, melhor. | *Total Software Quality Model Index*: agregação ponderada das quatro características. |
+
+## Da métrica crua à medida (normalização)
+
+Cada medida transforma uma métrica bruta num valor entre 0 e 1. São três passos:
+cálculo bruto, interpolação com "ganho" e agregação pelo número de arquivos.
+
+### Interpolação e ganho
+
+A normalização mapeia linearmente o intervalo entre dois limites
+(`min_threshold` e `max_threshold`) para o intervalo `[0, 1]`. Valores abaixo do
+mínimo viram 0; acima do máximo, viram 1.
+
+O **ganho** define a direção do que é "bom":
+
+- **Maior é melhor** (`POSITIVE_SLOPE`): a nota cresce com a métrica. Usado quando
+  o valor alto é desejável, como cobertura de testes ou throughput da equipe.
+- **Menor é melhor** (`NEGATIVE_SLOPE`): a nota é invertida (`1 - x`). Usado
+  quando o valor alto é ruim, como complexidade, duplicação ou tempo de feedback
+  de CI.
+
+### Exemplo: cobertura de testes
+
+A medida `test_coverage` usa limites `min = 60`, `max = 100` e ganho "maior é
+melhor". Considere, a título ilustrativo, três arquivos com cobertura
+`[70, 90, 50]`:
+
+1. Arquivos abaixo de 60% saem do numerador: sobram `[70, 90]`.
+2. Interpolação de `[60, 100]` para `[0, 1]`: `70` vira `0.25`, `90` vira `0.75`.
+3. Agregação pelo total de arquivos: `(0.25 + 0.75) / 3 = 0.333`.
+
+O resultado é `test_coverage ≈ 0.333`. Repare que o arquivo mal-coberto puxa a
+nota para baixo mesmo saindo do numerador, porque continua no denominador (o
+total de arquivos).
+
+:::note Limites configuráveis
+Os limites (`min` e `max`) e os pesos de cada medida vêm da configuração de
+release (o arquivo `msgram.json`, gerado a partir de uma pré-configuração
+padrão). A tabela abaixo mostra os valores padrão; um projeto pode ajustá-los
+dentro das regras de validação de cada medida.
+:::
+
+### Medidas e seus padrões
+
+| Medida | min | max | Direção |
+| --- | ---: | ---: | --- |
+| passed_tests | 0 | 1 | maior é melhor |
+| test_coverage | 60 | 100 | maior é melhor |
+| test_builds | 0 | 300000 | menor é melhor |
+| ci_feedback_time | 1 | 900 | menor é melhor |
+| non_complex_file_density | 0 | 10 | menor é melhor |
+| commented_file_density | 10 | 30 | faixa aceitável (*) |
+| duplication_absense | 0 | 5 | menor é melhor |
+| team_throughput | 45 | 100 | maior é melhor |
+
+:::note (*) Densidade de comentários é uma faixa, não um extremo
+Diferente das outras medidas "menor é melhor" (que penalizam apenas valores
+acima do máximo), `commented_file_density` trata o intervalo `[10, 30]` como a
+faixa aceitável: tanto comentar de menos quanto comentar demais reduz a nota. O
+filtro corta dos dois lados, não só de cima.
+:::
+
+:::caution Desempenho é um caso à parte
+As medidas de desempenho (`response_time`, `cpu_utilization`,
+`memory_utilization`) não seguem a interpolação simples descrita aqui. Elas
+comparam duas releases com um método estatístico próprio (Random Forest e
+Cliff's delta) antes de normalizar. Trate-as como um fluxo especial, não como o
+caminho padrão.
+:::
+
+## Da medida ao tsqmi (agregação)
+
+A partir do nível de medida, todo salto para cima usa a mesma operação: a
+**norma L2 ponderada**. Não é uma média aritmética.
+
+```
+             raiz( soma( (valor_i * peso_i)^2 ) )
+agregado =  -------------------------------------
+                  raiz( soma( peso_i^2 ) )
+```
+
+Onde `valor_i` são as notas dos filhos (medidas, subcaracterísticas ou
+características) e `peso_i` a importância relativa de cada um.
+
+Dois pontos que valem entender:
+
+- **Só a proporção dos pesos importa.** Como os pesos entram ao quadrado no
+  numerador e no denominador, usar `[50, 50]` ou `[0.5, 0.5]` dá o mesmo
+  resultado. O que conta é a razão entre eles.
+- **A norma L2 não é a média.** Para os mesmos valores e pesos, a norma L2 dá um
+  resultado ligeiramente maior que a média aritmética. Por exemplo, com valores
+  `[0.9, 0.6]` e pesos iguais, a média seria `0.75` e a norma L2 dá `0.765`.
+
+Essa mesma fórmula é aplicada três vezes: medidas para subcaracterística,
+subcaracterísticas para característica e características para tsqmi.
+
+## As quatro características
+
+O modelo tem quatro características fixas, inspiradas na ISO/IEC 25010, cada uma
+com peso padrão de 25%:
+
+- **Confiabilidade** (*reliability*): quão confiável e bem-testado é o software.
+  Composta por *testing_status* (testes passando, builds e cobertura) e
+  *maturity* (tempo de feedback de CI).
+- **Manutenibilidade** (*maintainability*): quão fácil é entender e alterar o
+  código. Composta por *modifiability* (densidade de complexidade, de comentários
+  e ausência de duplicação).
+- **Adequação funcional** (*functional_suitability*): quanto do trabalho
+  planejado foi de fato entregue. Composta por *functional_completeness*
+  (throughput da equipe).
+- **Eficiência de desempenho** (*performance_efficiency*): desempenho em tempo de
+  execução. Composta por *time_behaviour* (tempo de resposta) e
+  *resource_utilization* (uso de CPU e memória).
+
+## Um exemplo ponta a ponta
+
+O exemplo a seguir é **ilustrativo** (parte dos valores é suposta) e serve para
+mostrar o caminho completo, do dado bruto até a nota final.
+
+Suponha a característica **manutenibilidade**, com sua única subcaracterística
+*modifiability* e três medidas já normalizadas:
+
+- `non_complex_file_density = 0.875`
+- `commented_file_density = 0.6`
+- `duplication_absense = 0.5`
+
+Com pesos `[33, 33, 34]`, a norma L2 ponderada de *modifiability* dá `0.674`.
+Como *modifiability* é a única subcaracterística de manutenibilidade (peso 100),
+a característica herda o mesmo valor: `maintainability = 0.674`.
+
+Agora suponha as quatro características calculadas, com pesos iguais:
+
+| Característica | Valor |
+| --- | ---: |
+| reliability | 0.800 |
+| maintainability | 0.674 |
+| functional_suitability | 0.900 |
+| performance_efficiency | 0.700 |
+
+A norma L2 ponderada dessas quatro dá **tsqmi ≈ 0.774**. A média aritmética dos
+mesmos valores seria `0.769`: a pequena diferença é justamente o efeito da norma
+L2, que não é média.
+
+## Onde isso vive no código
+
+Todo o cálculo está no repositório **Core**. As funções públicas que percorrem a
+hierarquia (uma por camada) são `calculate_measures`,
+`calculate_subcharacteristics`, `calculate_characteristics` e `calculate_tsqmi`,
+em `src/resources/analysis.py`. A normalização e a norma L2 ponderada ficam em
+`src/core/transformations.py`, e as medidas individuais em
+`src/core/aggregated_normalized_measures.py`. A hierarquia, os pesos e os limites
+padrão estão em `src/resources/constants.py` e
+`src/staticfiles/default_pre_config.py`.
+
+Para configurar pesos e limites de um projeto, veja o arquivo de modelo
+`msgram.json` gerado pelo comando `msgram init` (detalhado em
+[Como usar](./como-usar.mdx)).

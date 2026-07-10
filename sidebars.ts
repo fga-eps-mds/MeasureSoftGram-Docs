@@ -9,6 +9,7 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   comunidadeSidebar: [
     'intro',
+    'modelo-de-qualidade',
     'como-usar',
     'como-contribuir',
     'repos-ativos',
