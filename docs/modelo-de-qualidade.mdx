@@ -15,7 +15,7 @@ normalização das métricas e a fórmula de agregação. Todo o cálculo vive n
 módulo **Core** (`msgram-core`), independente de banco de dados, servidor ou
 rede.
 
-:::info Por que um modelo, e não só métricas
+:::info[Por que um modelo, e não só métricas]
 Olhar "cobertura = 73%" isolado não diz se o projeto está saudável. As
 ferramentas de análise produzem dezenas de números em escalas diferentes. O
 modelo de qualidade organiza esses números numa estrutura hierárquica e os
@@ -84,7 +84,7 @@ O resultado é `test_coverage ≈ 0.333`. Repare que o arquivo mal-coberto puxa 
 nota para baixo mesmo saindo do numerador, porque continua no denominador (o
 total de arquivos).
 
-:::note Limites configuráveis
+:::note[Limites configuráveis]
 Os limites (`min` e `max`) e os pesos de cada medida vêm da configuração de
 release (o arquivo `msgram.json`, gerado a partir de uma pré-configuração
 padrão). A tabela abaixo mostra os valores padrão; um projeto pode ajustá-los
@@ -104,14 +104,14 @@ dentro das regras de validação de cada medida.
 | duplication_absense | 0 | 5 | menor é melhor |
 | team_throughput | 45 | 100 | maior é melhor |
 
-:::note (*) Densidade de comentários é uma faixa, não um extremo
+:::note[(*) Densidade de comentários é uma faixa, não um extremo]
 Diferente das outras medidas "menor é melhor" (que penalizam apenas valores
 acima do máximo), `commented_file_density` trata o intervalo `[10, 30]` como a
 faixa aceitável: tanto comentar de menos quanto comentar demais reduz a nota. O
 filtro corta dos dois lados, não só de cima.
 :::
 
-:::caution Desempenho é um caso à parte
+:::caution[Desempenho é um caso à parte]
 As medidas de desempenho (`response_time`, `cpu_utilization`,
 `memory_utilization`) não seguem a interpolação simples descrita aqui. Elas
 comparam duas releases com um método estatístico próprio (Random Forest e
