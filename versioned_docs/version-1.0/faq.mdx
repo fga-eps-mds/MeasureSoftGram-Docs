@@ -1,0 +1,108 @@
+---
+sidebar_position: 7
+---
+
+# FAQ e solução de problemas
+
+Perguntas comuns sobre o MeasureSoftGram e os erros mais frequentes. Cada
+resposta aponta para a página com o detalhe completo.
+
+## Perguntas comuns
+
+### O que é o MeasureSoftGram?
+
+É uma ferramenta para medir a qualidade de um produto de software a partir de
+métricas objetivas, seguindo um modelo baseado na ISO/IEC 25010. Ele parte de
+métricas coletadas (por exemplo, do SonarQube), agrega em medidas,
+subcaracterísticas e características, e chega a uma nota final de qualidade
+(TSQMI). Veja [Introdução](./intro.mdx) e
+[Modelo de qualidade](./modelo-de-qualidade.mdx).
+
+### Preciso de servidor e banco de dados para usar?
+
+Não. O caminho mais rápido é a **CLI**, que roda inteiramente na sua máquina, sem
+servidor nem banco. Existe também um modo hospedado (com o Service e o Front) para
+acompanhar a evolução da qualidade ao longo do tempo por uma interface web. Os
+dois modos estão descritos em [Arquitetura](./arquitetura.mdx) e
+[Como usar](./como-usar.mdx).
+
+### Por onde começo?
+
+Instale a CLI e rode o fluxo do zero em [Primeiros passos](./primeiros-passos.mdx):
+
+```bash
+pip install msgram
+msgram init
+```
+
+### O que é TSQMI?
+
+É a nota final de qualidade do produto, no topo da hierarquia do modelo (o valor
+que agrega todas as características). O termo e os demais (medida,
+subcaracterística, norma L2) estão no [Glossário](./glossario.mdx).
+
+### De onde vêm as métricas?
+
+A CLI parte de um **relatório de análise do SonarQube/SonarCloud em JSON**. Ela
+não roda a análise do Sonar por você: o ponto de partida é o relatório já
+exportado. O passo a passo está em [Primeiros passos](./primeiros-passos.mdx).
+
+### A CLI se comunica com o Service por HTTP?
+
+Não. A CLI usa o Core e o Parser como **bibliotecas, no mesmo processo**. Ela não
+faz chamadas HTTP ao Service. Quem conversa com o Service via HTTP são o Front e a
+Action. Veja o diagrama em [Arquitetura](./arquitetura.mdx).
+
+### Qual é a licença?
+
+Os pacotes de software do MeasureSoftGram (Core, Service, CLI, Parser, Front e
+Action) são distribuídos sob a **AGPLv3**. Consulte o arquivo `LICENSE` de cada
+repositório para o texto oficial.
+
+### Como reporto um bug ou proponho uma melhoria?
+
+Abra uma issue no repositório correspondente descrevendo o contexto, o
+comportamento esperado e como reproduzir. O fluxo completo de contribuição (issue,
+branch, pull request) está em [Como contribuir](./como-contribuir.mdx).
+
+## Solução de problemas
+
+### `msgram: command not found` depois do `pip install`
+
+O executável foi instalado numa pasta que não está no `PATH`, ou você instalou num
+ambiente virtual que não está ativo. Ative o ambiente virtual e confirme:
+
+```bash
+source .venv/bin/activate
+msgram --help
+```
+
+### O `calculate` não encontra as métricas
+
+O `calculate` lê o resultado do `extract`. Rode o `extract` antes e aponte os dois
+para o mesmo diretório (por padrão, `.msgram`):
+
+```bash
+msgram extract -sp analytics-raw-data -ep .msgram
+msgram calculate -ep .msgram -cp .msgram -o tabular
+```
+
+Os caminhos e formatos de cada comando estão na
+[Referência da CLI](./referencia-cli.mdx).
+
+### O `extract` reclama que falta fonte de dados
+
+O `extract` precisa de ao menos uma origem: `-sp` (Sonar), `-gr` (repositório
+GitHub) ou os parâmetros de performance (`-p1`/`-p2`/`-pn`). Rodar sem nenhum
+resulta em erro. Veja [Referência da CLI](./referencia-cli.mdx#extract).
+
+### `pip install` não encontra a release candidate
+
+Pré-releases não vêm por padrão. Instale com `--pre` ou com o pin exato:
+
+```bash
+pip install --pre "msgram==3.3.1rc1"
+```
+
+O fluxo de publicação e pré-release está em
+[Como publicar no PyPI](./publicar-no-pypi.mdx).

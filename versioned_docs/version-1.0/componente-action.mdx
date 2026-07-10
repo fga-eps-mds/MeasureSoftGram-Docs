@@ -1,0 +1,69 @@
+---
+sidebar_position: 7
+---
+
+# Action
+
+A **Action** é uma **GitHub Action** que roda no seu pipeline de CI, coleta as
+métricas do código (do SonarCloud/SonarQube e do GitHub) e as envia ao
+[Service](./componente-service.mdx), onde ficam disponíveis para visualização no
+[Front](./componente-front.mdx). Veja o fluxo em [Arquitetura](./arquitetura.mdx).
+
+## Como usar no seu workflow
+
+Adicione o passo ao seu workflow de CI, depois da análise do Sonar:
+
+```yaml
+- name: Action MeasureSoftGram
+  id: msgram
+  uses: fga-eps-mds/MeasureSoftGram-Action@v2.1.5
+  with:
+    githubToken: ${{ secrets.GITHUB_TOKEN }}
+    sonarProjectKey: "nome-da-org_nome-do-repositorio"
+    msgramServiceToken: ${{ secrets.MSGRAM_SERVICE_TOKEN }}
+    productName: "nome-do-seu-produto"
+    workflowName: "nome-do-seu-workflow-de-build"
+    collectSonarqubeMetrics: true
+    collectGithubMetrics: true
+    usLabel: "US"
+```
+
+Entradas **obrigatórias**: `githubToken`, `productName`, `msgramServiceToken`,
+`collectSonarqubeMetrics`, `collectGithubMetrics`. Entradas opcionais: `host`,
+`sonartoken`, `sonarProjectKey`, `workflowName`, `usLabel`.
+
+:::tip[Coleta de métricas do GitHub]
+Se você ativa `collectGithubMetrics` para medir o tempo de feedback do CI, dispare
+a Action num workflow separado, acionado por `workflow_run` após o build concluir.
+Assim ela enxerga a execução já finalizada e coleta a métrica corretamente.
+:::
+
+## Desenvolvimento local
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Action.git
+cd 2026.1-MeasureSoftGram-Action
+yarn install
+```
+
+A Action é escrita em TypeScript e compilada com `ncc` para `dist/`. Para variáveis
+de ambiente locais, copie o template `env-vars-example/.action.env` (chaves:
+`GITHUB_TOKEN`, `SONAR_TOKEN`, `MSGRAM_TOKEN`, `MSGRAM_SERVICE_HOST`).
+
+## Como testar
+
+```bash
+yarn run jest --coverage
+yarn lint
+```
+
+:::note[Ajustes de tooling em andamento]
+- O runtime declarado no `action.yml` ainda é o **node16**, que o GitHub Actions já
+  marca como deprecado. A migração para node20 é acompanhada na
+  [issue #19](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Action/issues/19).
+- O script `test` roda em modo *watch*, o que atrapalha CI e onboarding; a
+  correção e os alvos de `make` diretos são acompanhados na
+  [issue #20](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Action/issues/20).
+- A padronização do gerenciador de pacotes (yarn x npm) é acompanhada na
+  [issue #21](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Action/issues/21).
+:::

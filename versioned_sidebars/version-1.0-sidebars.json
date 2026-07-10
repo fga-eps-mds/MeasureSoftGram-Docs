@@ -1,0 +1,70 @@
+{
+  "comunidadeSidebar": [
+    {
+      "type": "category",
+      "label": "Conceitos",
+      "collapsed": false,
+      "items": [
+        "intro",
+        "modelo-de-qualidade",
+        "arquitetura",
+        "glossario"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Primeiros passos",
+      "collapsed": false,
+      "items": [
+        "primeiros-passos",
+        "como-usar"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Componentes",
+      "collapsed": false,
+      "items": [
+        "componentes",
+        "componente-core",
+        "componente-parser",
+        "componente-cli",
+        "componente-service",
+        "componente-front",
+        "componente-action",
+        "componente-mcp",
+        "componente-plugin"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Repositorios",
+      "collapsed": false,
+      "items": [
+        "repos-ativos",
+        "repos-originais"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Referencia",
+      "collapsed": false,
+      "items": [
+        "referencia-cli",
+        "publicar-no-pypi",
+        "faq"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Contribuicao",
+      "collapsed": false,
+      "items": [
+        "como-contribuir",
+        "codigo-de-conduta",
+        "politica-de-branches",
+        "politica-de-commits"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+---
+sidebar_position: 8
+---
+
+# AI (MCP)
+
+O componente **AI** é um servidor **MCP (Model Context Protocol)** que expõe os
+dados do MeasureSoftGram como ferramentas para assistentes de IA (organizações,
+releases, características, métricas, medidas). Com ele, um assistente compatível com
+MCP consegue consultar a qualidade de um produto diretamente. Repositório:
+[2026.1-MeasureSoftGram-AI](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-AI).
+
+## Pré-requisitos
+
+- **Docker** e **Docker Compose**.
+- Para conectar assistentes que falam MCP por stdio (como o Claude Desktop),
+  também `Node.js`/`npx`.
+- Credenciais de um usuário do [Service](./componente-service.mdx).
+
+## Setup local
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-AI.git
+cd 2026.1-MeasureSoftGram-AI
+cp env-vars-example/.service.env env-vars/.service.env
+cp env-vars-example/.mcp.env env-vars/.mcp.env
+```
+
+Preencha `env-vars/.mcp.env`:
+
+```env
+SERVICE=http://service:8080/api/v1/
+MSGRAM_USER=admin
+MSGRAM_PASSWORD=admin
+```
+
+Suba os serviços:
+
+```bash
+docker compose -f compose.dev.yaml up --build
+```
+
+Isso levanta o Service (`:8080`), o servidor MCP (`:8000`) e o MCP Inspector
+(`:6274`).
+
+## Como conectar a um cliente MCP
+
+Em clientes com suporte HTTP nativo (por exemplo, Cursor ou VS Code), aponte para o
+servidor:
+
+```json
+{
+  "mcpServers": {
+    "measuresoftgram": {
+      "type": "streamable-http",
+      "url": "http://localhost:8000/mcp"
+    }
+  }
+}
+```
+
+Para o **Claude Desktop** (que usa stdio), a conexão passa por um proxy `mcp-remote`
+no `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "measuresoftgram": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:8000/mcp"]
+    }
+  }
+}
+```
+
+## Como testar
+
+```bash
+docker compose -f compose.dev.yaml exec mcp-server pytest -v
+```
+
+:::note[Pontos a confirmar]
+A execução via imagem publicada no Docker Hub (`docker run` da imagem
+`measuresoftgram/ai`) e a variável de transporte `MCP_TRANSPORT` aparecem no guia
+interno do time, mas não foram confirmadas no README público do repositório
+**(a confirmar)**. O caminho por Docker Compose acima é o confirmado.
+:::

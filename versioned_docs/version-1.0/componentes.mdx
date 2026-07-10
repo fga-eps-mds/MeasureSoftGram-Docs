@@ -1,0 +1,29 @@
+---
+sidebar_position: 1
+---
+
+# Componentes
+
+O MeasureSoftGram é dividido em componentes independentes, cada um em seu
+repositório. Esta seção reúne, por componente, como **instalar**, **rodar** e
+**testar** localmente. Para entender como eles se encaixam e trocam dados, veja
+[Arquitetura](./arquitetura.mdx).
+
+| Componente | O que é | Página |
+| --- | --- | --- |
+| **Core** | Biblioteca Python com o modelo matemático de qualidade. | [Core](./componente-core.mdx) |
+| **Parser** | Biblioteca Python que interpreta as métricas de entrada. | [Parser](./componente-parser.mdx) |
+| **CLI** | Ferramenta de linha de comando `msgram` (modo offline). | [CLI](./componente-cli.mdx) |
+| **Service** | Backend Django/DRF que guarda e serve os dados. | [Service](./componente-service.mdx) |
+| **Front** | Interface web (Next.js) para visualizar a qualidade. | [Front](./componente-front.mdx) |
+| **Action** | GitHub Action que coleta métricas em CI e envia ao Service. | [Action](./componente-action.mdx) |
+| **AI (MCP)** | Servidor MCP que expõe os dados a assistentes de IA. | [AI (MCP)](./componente-mcp.mdx) |
+| **Plugin** | Extensão de VS Code com o painel de qualidade. | [Plugin VS Code](./componente-plugin.mdx) |
+
+:::note[Onde cada um vive]
+Os repositórios de cada componente estão listados em
+[Repositórios ativos](./repos-ativos.mdx). Os comandos desta seção foram tirados
+dos arquivos reais de cada repositório (READMEs, Makefiles, `package.json`,
+`tox.ini`). Onde um comando de conveniência ainda não existe, a página aponta o
+caminho que funciona hoje e cita a issue que rastreia a melhoria.
+:::

@@ -1,0 +1,150 @@
+---
+sidebar_position: 2
+---
+
+# Como usar
+
+Esta pagina mostra duas formas de usar o MeasureSoftGram: a interface de linha
+de comando (`msgram`) para extrair e calcular metricas, e como subir o sistema
+completo (backend e frontend) em ambiente local.
+
+## A CLI `msgram`
+
+A CLI e distribuida como o pacote `msgram` no PyPI e depende dos pacotes
+`msgram-core` e `msgram-parser`, instalados automaticamente como dependencias.
+
+### Instalacao via PyPI
+
+Use Python 3.10 ou superior. E recomendado trabalhar dentro de um ambiente
+virtual:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install msgram
+```
+
+Para ver todos os comandos disponiveis:
+
+```bash
+msgram -h
+```
+
+### Instalacao a partir do codigo-fonte
+
+Se preferir rodar a partir do repositorio (por exemplo, para contribuir):
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-CLI.git
+cd 2026.1-MeasureSoftGram-CLI
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+O `requirements.txt` instala a aplicacao em modo editavel (`-e .`), entao o
+comando `msgram` fica disponivel no terminal apos a instalacao.
+
+### Fluxo basico
+
+Crie o arquivo de configuracao padrao no diretorio atual:
+
+```bash
+msgram init
+```
+
+Isso gera o arquivo `.msgram/msgram.json`. Para listar a configuracao:
+
+```bash
+msgram list
+```
+
+Extraia metricas a partir de arquivos JSON de analise (por exemplo, exportados
+do SonarQube ou SonarCloud):
+
+```bash
+msgram extract -sp analytics-raw-data -ep .msgram
+```
+
+O argumento `-sp` aponta para o diretorio com os arquivos JSON de entrada e o
+`-ep` define onde os arquivos `.metrics` extraidos serao salvos.
+
+Calcule os valores do modelo a partir das metricas extraidas:
+
+```bash
+msgram calculate -ep .msgram -cp .msgram -o csv
+```
+
+O `-ep` aponta para as metricas extraidas, o `-cp` para a pasta com o
+`msgram.json` e o `-o` define o formato de saida.
+
+Para ver as opcoes de um comando especifico:
+
+```bash
+msgram <comando> -h
+```
+
+## Como subir o sistema
+
+O sistema completo e composto pelo backend (Service) e pelo frontend (Front).
+A forma mais simples de coloca-los no ar em ambiente local e via Docker Compose.
+
+### Backend (Service)
+
+Clone o repositorio do Service:
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Service.git
+cd 2026.1-MeasureSoftGram-Service
+```
+
+O repositorio traz uma pasta `env-vars-example/` com os modelos das variaveis de
+ambiente. Antes do primeiro start, copie o exemplo para a pasta `env-vars/`
+(que nao e versionada por conter credenciais):
+
+```bash
+cp -R env-vars-example env-vars
+```
+
+Os valores padrao do exemplo ja funcionam para desenvolvimento local. Ajuste
+apenas o que precisar. Em seguida, suba os containers:
+
+```bash
+docker compose up
+```
+
+Para rodar em segundo plano, use `docker compose up -d`. Com o backend no ar, a
+API fica disponivel em `http://localhost:8080/` e a documentacao Swagger na rota
+`/swagger/`.
+
+### Frontend (Front)
+
+Em outro terminal, clone e suba o frontend:
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Front.git
+cd 2026.1-MeasureSoftGram-Front
+```
+
+Siga o `README` do repositorio do Front para instalar as dependencias e iniciar
+a aplicacao, apontando-a para a URL do backend que voce subiu.
+
+## Problemas comuns
+
+Se o comando `msgram` nao for encontrado, verifique se o ambiente virtual esta
+ativado:
+
+```bash
+python --version
+which python
+which msgram
+```
+
+Se aparecer um erro de modulo nao encontrado, as dependencias provavelmente nao
+foram instaladas no ambiente atual. Ative o ambiente virtual e instale
+novamente:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+```

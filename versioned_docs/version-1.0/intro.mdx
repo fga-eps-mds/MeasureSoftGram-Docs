@@ -1,0 +1,52 @@
+---
+sidebar_position: 1
+slug: /intro
+---
+
+# Sobre o produto
+
+O **MeasureSoftGram** e uma plataforma de medicao e avaliacao de qualidade de
+software. Ele coleta metricas de fontes externas (como SonarCloud e GitHub),
+organiza essas metricas em um modelo de qualidade e apresenta indicadores que
+ajudam equipes a entender e acompanhar a saude do seu codigo ao longo do tempo.
+
+A ferramenta nasceu no contexto academico das disciplinas de Engenharia de
+Produto de Software (EPS) e Metodos de Desenvolvimento de Software (MDS) da
+Universidade de Brasilia (FGA), e e mantida como projeto de codigo aberto pela
+organizacao [fga-eps-mds](https://github.com/fga-eps-mds).
+
+## Para que serve
+
+- **Medir**: extrair metricas brutas de qualidade a partir de relatorios de
+  analise estatica e de dados de repositorio.
+- **Avaliar**: combinar essas metricas em um modelo de qualidade configuravel,
+  produzindo valores comparaveis entre projetos e entre versoes.
+- **Acompanhar**: visualizar a evolucao da qualidade e apoiar decisoes de
+  melhoria continua.
+
+## Publico-alvo
+
+- Equipes de desenvolvimento que querem acompanhar qualidade de forma objetiva.
+- Estudantes e pesquisadores interessados em modelos de qualidade de software.
+- Pessoas que desejam contribuir com um projeto academico de codigo aberto.
+
+## Visao geral da arquitetura
+
+O MeasureSoftGram e dividido em modulos independentes, cada um com uma
+responsabilidade bem definida:
+
+- **Core**: nucleo de calculo do modelo de qualidade. Recebe metricas e produz
+  os valores das medidas, subcaracteristicas e caracteristicas.
+- **Service**: backend que armazena e manipula os dados do MeasureSoftGram
+  (metricas, configuracoes, analises realizadas).
+- **CLI**: interface de linha de comando para extrair metricas e calcular o
+  modelo a partir do terminal.
+- **Parser**: responsavel por interpretar e normalizar os dados de entrada.
+- **Front**: interface web para visualizacao dos resultados.
+- **Action**: integracao com pipelines de CI para coletar e enviar metricas
+  automaticamente.
+- **AI** e **Plugin**: modulos complementares que estendem as capacidades da
+  plataforma.
+
+Para comecar a usar, siga para a pagina [Como usar](./como-usar.mdx). Se quiser
+contribuir, veja [Como contribuir](./como-contribuir.mdx).

@@ -1,0 +1,86 @@
+---
+sidebar_position: 4
+slug: /glossario
+---
+
+# Glossário
+
+Os termos do domínio do MeasureSoftGram, em ordem alfabética. Para entender como
+eles se encaixam no cálculo, veja [Modelo de qualidade](./modelo-de-qualidade.mdx).
+
+### Característica
+
+Uma das quatro grandes dimensões de qualidade do modelo, inspiradas na ISO/IEC
+25010: **confiabilidade**, **manutenibilidade**, **adequação funcional** e
+**eficiência de desempenho**. Cada característica é o resultado da agregação das
+suas subcaracterísticas.
+
+### Ganho
+
+A direção do que é "bom" numa medida. Pode ser "maior é melhor" (a nota cresce
+com a métrica, como em cobertura de testes) ou "menor é melhor" (a nota é
+invertida, como em complexidade ou duplicação). É o que permite comparar medidas
+de naturezas opostas na mesma escala de 0 a 1.
+
+### Limite (threshold)
+
+Os valores de referência (`min` e `max`) usados para normalizar uma métrica.
+Abaixo do limite mínimo a medida vale 0; acima do máximo, vale 1; entre eles, um
+valor interpolado. Os limites fazem parte da configuração e podem ser ajustados
+por projeto, dentro das regras de validação de cada medida.
+
+### Medida (measure)
+
+Uma métrica bruta já traduzida para uma nota entre 0 e 1, independente da escala
+original. Exemplos: `test_coverage`, `non_complex_file_density`. É o primeiro
+nível interpretável do modelo, calculado a partir das métricas por normalização.
+
+### Métrica (metric)
+
+O dado bruto coletado das ferramentas externas (SonarCloud, GitHub), por arquivo
+ou por projeto. Exemplos: cobertura, complexidade ciclomática, número de linhas
+duplicadas. É a entrada do modelo, antes de qualquer normalização.
+
+### Modelo de qualidade
+
+A estrutura hierárquica que transforma métricas cruas numa nota única de
+qualidade, subindo por cinco níveis (métrica, medida, subcaracterística,
+característica e TSQMI). Ver [Modelo de qualidade](./modelo-de-qualidade.mdx).
+
+### Norma L2 ponderada
+
+A operação de agregação usada em todos os saltos acima do nível de medida. Não é
+uma média aritmética: é a norma euclidiana (L2) do vetor de valores ponderados,
+dividida pela norma dos pesos. Para os mesmos dados, dá um resultado ligeiramente
+maior que a média.
+
+### Peso (weight)
+
+A importância relativa de cada filho numa agregação. Define quanto uma medida
+pesa na sua subcaracterística, uma subcaracterística na sua característica, e
+assim por diante. Só a proporção entre os pesos importa, não a escala absoluta.
+
+### Pré-configuração (pre-config)
+
+O conjunto padrão de características, subcaracterísticas, medidas, pesos e limites
+que serve de ponto de partida para um projeto. É a base do arquivo de modelo
+(`msgram.json`) gerado pelo comando `msgram init`.
+
+### Release
+
+Uma versão do software avaliada pelo MeasureSoftGram. Uma release tem sua própria
+configuração de qualidade e produz seus próprios valores, o que permite comparar
+a evolução da qualidade de uma versão para a seguinte.
+
+### Subcaracterística (subcharacteristic)
+
+Um aspecto de qualidade que agrupa medidas relacionadas. Exemplos:
+`testing_status` (junta testes passando, builds e cobertura), `modifiability`
+(junta complexidade, comentários e duplicação). É o nível intermediário entre as
+medidas e as características.
+
+### TSQMI
+
+*Total Software Quality Model Index*: a nota única final de uma release, no topo
+da hierarquia. Resulta da agregação ponderada das quatro características. Quanto
+mais perto de 1, melhor a qualidade avaliada.
