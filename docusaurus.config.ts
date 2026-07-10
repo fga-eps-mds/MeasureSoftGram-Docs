@@ -128,8 +128,8 @@ const config: Config = {
               to: '/docs/como-contribuir',
             },
             {
-              label: 'Configurar o TestPyPI',
-              to: '/docs/configurar-testpypi',
+              label: 'Publicar no PyPI',
+              to: '/docs/publicar-no-pypi',
             },
           ],
         },
