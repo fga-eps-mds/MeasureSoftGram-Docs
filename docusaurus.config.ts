@@ -34,7 +34,19 @@ const config: Config = {
     },
   },
 
-  themes: ['@docusaurus/theme-mermaid'],
+  themes: [
+    '@docusaurus/theme-mermaid',
+    [
+      // Busca full-text client-side, autocontida (sem servico externo).
+      require.resolve('@easyops-cn/docusaurus-search-local'),
+      {
+        hashed: true,
+        language: ['pt', 'en'],
+        indexBlog: false,
+        docsRouteBasePath: '/docs',
+      },
+    ],
+  ],
 
   i18n: {
     defaultLocale: 'pt-BR',
