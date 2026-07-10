@@ -1,0 +1,192 @@
+---
+sidebar_position: 6
+---
+
+# Como publicar os pacotes no PyPI
+
+Os pacotes Python do MeasureSoftGram (a CLI `msgram` e suas bibliotecas
+`msgram-core` e `msgram-parser`) são publicados de forma automatizada pelo GitHub
+Actions, **sem armazenar tokens nem segredos no repositório**. A publicação usa
+**Trusted Publishing (OIDC)**, em que o PyPI confia diretamente num workflow
+específico do repositório.
+
+Todo o ciclo de release vive no **PyPI de produção**. Não há TestPyPI no fluxo:
+o "teste antes do final" é feito com **release candidate (pré-release)**, que o
+`pip` normal ignora.
+
+## Visão geral do fluxo por tag
+
+A publicação é disparada por tags de versão, seguindo o
+[PEP 440](https://peps.python.org/pep-0440/):
+
+| Tag que você cria | O que publica | Quem instala |
+| --- | --- | --- |
+| `vX.Y.ZrcN` (ex: `v3.3.1rc1`) | pré-release no PyPI | só quem pedir: `pip install --pre` ou pin exato `==3.3.1rc1` |
+| `vX.Y.Z` (ex: `v3.3.1`) | versão final no PyPI | todo mundo: `pip install msgram` |
+
+:::note[Por que pré-release em vez de TestPyPI?]
+Pré-release na produção é o que numpy, pandas, Django e o próprio CPython fazem a
+cada release: a rc fica publicada, mas o `pip install` normal **não a pega** (o
+PEP 440 ignora pré-releases por padrão). Quem quer testar pede de propósito com
+`--pre`. O TestPyPI serve para testar o *processo de publicação*, não para
+distribuir software, e é um sandbox volátil. Por isso o ciclo de release vive na
+produção.
+:::
+
+:::tip[Trava de segurança da versão final]
+A tag final (`vX.Y.Z`) só publica se já existir uma release candidate
+(`vX.Y.ZrcN`) da mesma versão no PyPI. Sem rc, o job falha de propósito. É
+impossível publicar a final sem ter testado a rc antes. O workflow também valida
+que a tag bate exatamente com a versão declarada no `pyproject.toml`.
+:::
+
+## Fluxo completo de uma release
+
+1. **Bump da versão para a rc** no `pyproject.toml` (tem que bater exatamente com
+   a tag, senão o CI falha de propósito):
+
+   ```toml
+   version = "3.3.1rc1"
+   ```
+
+2. **Commit + tag da rc.** O push da tag dispara o workflow, que publica a rc como
+   pré-release no PyPI:
+
+   ```bash
+   git commit -am "chore: bump 3.3.1rc1"
+   git tag v3.3.1rc1
+   git push origin main --tags
+   ```
+
+3. **Teste a rc** (veja abaixo). Rode `msgram --help` e um fluxo real
+   (`extract`, `calculate`).
+
+4. **Prepare a final** ajustando a versão no `pyproject.toml`:
+
+   ```toml
+   version = "3.3.1"
+   ```
+
+5. **Commit + tag final.** O workflow roda o gate (confere que a rc existe no
+   PyPI) e, se passar, publica a versão final:
+
+   ```bash
+   git commit -am "chore: release 3.3.1"
+   git tag v3.3.1
+   git push origin main --tags
+   ```
+
+Achou um problema na rc? Corrija, suba o número (`3.3.1rc2`) e repita do passo 1.
+Só promova para final quando a rc estiver boa.
+
+## Como testar a rc
+
+Pré-releases não vêm por padrão: use `--pre` (ou o pin exato) para instalar a rc.
+Tudo vem do PyPI de produção, sem `--extra-index-url`:
+
+```bash
+pip install --pre "msgram==3.3.1rc1"
+msgram --help
+```
+
+Com `uv`, permitindo pré-releases também das dependências:
+
+```bash
+uv venv --python 3.10 .venv
+uv pip install --python .venv/bin/python --prerelease=allow "msgram==3.3.1rc1"
+.venv/bin/msgram --help
+```
+
+## Configurar o Trusted Publisher (uma vez por projeto)
+
+Quem tiver acesso de **owner** do projeto no PyPI registra o publicador confiável
+em **Manage > Publishing**, aba GitHub Actions, apontando para o repositório de
+onde a tag de release será criada:
+
+| Campo | Valor |
+| --- | --- |
+| Owner | a organização no GitHub (ex: `fga-eps-mds`) |
+| Repository name | o repositório de onde sai a release |
+| Workflow filename | `python-publish.yml` |
+| Environment name | `pypi` |
+
+Depois, crie o environment **`pypi`** nesse repositório (**Settings >
+Environments**). Opcional mas recomendado: marque "Required reviewers" no `pypi`
+para exigir um OK humano antes de cada publicação.
+
+:::note[Trusted Publishing dispensa tokens]
+Como a autenticação é via OIDC, **não é necessário** criar nem armazenar tokens
+de API (`PYPI_API_TOKEN`, `TEST_PYPI_API_TOKEN`) como segredos. A action troca um
+token de curta duração com o índice no momento da publicação. Se esses secrets
+ainda existirem no repositório, podem ser removidos.
+:::
+
+## Trecho essencial do workflow
+
+O job de publicação roda em `ubuntu-latest`, no environment `pypi`, e precisa de
+permissão de OIDC:
+
+```yaml
+permissions:
+  id-token: write   # obrigatório para Trusted Publishing (OIDC)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+```
+
+Sem `repository-url`, a action publica no PyPI de produção (o padrão). A distinção
+entre rc e final é feita pela tag e pelo gate, não por um índice separado.
+
+Na prática o workflow completo separa o `build` (num job próprio, sem
+`environment` nem OIDC) dos jobs de publicação da rc e da final, que apenas baixam
+o artefato já construído e publicam. O trecho acima é o essencial da publicação.
+
+## Ordem de publicação entre os pacotes
+
+A CLI depende das bibliotecas, então há uma ordem obrigatória ao subir versões
+novas:
+
+```
+msgram (CLI)  ->  depende de  ->  msgram-core  +  msgram-parser
+```
+
+1. Publique **msgram-core** e **msgram-parser** primeiro e confirme no PyPI.
+2. Atualize os pins `msgram-core~=...` / `msgram-parser~=...` no `pyproject.toml`
+   da CLI, se as versões mudaram.
+3. Só então publique **msgram** (a CLI).
+
+Assim, quando a CLI for publicada, o PyPI já tem as versões novas de core e parser
+disponíveis para resolver as dependências.
+
+## Troubleshooting
+
+| Sintoma | Causa provável / solução |
+| --- | --- |
+| `403 ... isn't allowed to upload to project` | Trusted Publisher não configurado ou com campo divergente (owner/repo/workflow/environment). |
+| `400 File already exists` | Essa versão já foi publicada. Cada versão só pode ser publicada uma vez: suba o número. |
+| Job da versão final falhou no gate | Não existe rc da mesma versão no PyPI. Publique e teste a `vX.Y.ZrcN` primeiro. |
+| `Tag ... difere da versão em pyproject.toml` | A tag e a `version` do `pyproject.toml` precisam ser iguais. Ajuste e re-tague. |
+| CLI instala mas puxa core/parser antigos | Atualize os pins no `pyproject.toml` e republique. |
+| `pip install` não acha a rc | Pré-release não vem por padrão. Use `--pre` ou o pin exato (`==3.3.1rc1`). |
+
+:::tip[Errou uma rc já publicada?]
+Use **yank** na página do projeto (Manage > Releases > Options > Yank): a versão
+para de ser instalada, sem afetar quem já tinha pinado. Evite **deletar**, porque
+o número da versão fica queimado e não dá para reusar.
+:::
+
+## Referências
+
+- [Trusted Publishing (PyPI)](https://docs.pypi.org/trusted-publishers/)
+- [Pré-releases (PEP 440)](https://peps.python.org/pep-0440/#pre-releases)
+- [Action oficial de publicação](https://github.com/pypa/gh-action-pypi-publish)

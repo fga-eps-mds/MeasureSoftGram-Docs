@@ -39,7 +39,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Referencia',
       collapsed: false,
-      items: ['referencia-cli', 'configurar-testpypi'],
+      items: ['referencia-cli', 'publicar-no-pypi'],
     },
     {
       type: 'category',
