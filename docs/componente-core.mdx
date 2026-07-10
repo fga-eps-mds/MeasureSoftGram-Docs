@@ -1,0 +1,78 @@
+---
+sidebar_position: 2
+---
+
+# Core
+
+O **Core** é a biblioteca Python que implementa o modelo matemático de qualidade
+do MeasureSoftGram: ele recebe as métricas já extraídas e calcula a hierarquia
+completa (medidas, subcaracterísticas, características e a nota final TSQMI). É uma
+**biblioteca**, não um serviço de rede: quem precisa do cálculo (o Service e a
+CLI) o usa no mesmo processo, sem chamada HTTP. Veja o papel dele no conjunto em
+[Arquitetura](./arquitetura.mdx).
+
+Publicado no PyPI como **`msgram-core`**.
+
+## Pré-requisitos
+
+- **Python 3.9 ou superior.**
+- `pip`. O Core é biblioteca pura, então não tem Docker nem banco de dados.
+
+## Setup local
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Core.git
+cd 2026.1-MeasureSoftGram-Core
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+## Como usar como biblioteca
+
+O ponto de entrada público é o módulo `resources.analysis`, com uma função por
+nível do modelo:
+
+```python
+from resources.analysis import (
+    calculate_measures,
+    calculate_subcharacteristics,
+    calculate_characteristics,
+    calculate_tsqmi,
+)
+
+resultado = calculate_measures(extracted_measures, config=pre_config)
+```
+
+:::note[Rodando a partir do repositório]
+Ao executar um script à mão dentro do repositório, aponte o `PYTHONPATH` para a
+pasta `src`, que é a raiz dos pacotes:
+
+```bash
+PYTHONPATH=src python meu_script.py
+```
+
+A suíte de testes já faz isso automaticamente.
+:::
+
+## Como testar
+
+Os testes rodam via **tox**:
+
+```bash
+pip install tox
+tox
+```
+
+O `tox` executa os testes (com cobertura) e o lint. Para rodar só o lint
+(`black` + `flake8`):
+
+```bash
+tox -e lint
+```
+
+## Publicação
+
+O Core é publicado no PyPI de produção por Trusted Publishing (OIDC), disparado
+por tag de versão. O fluxo completo (release candidate, gate da versão final) está
+em [Como publicar no PyPI](./publicar-no-pypi.mdx).

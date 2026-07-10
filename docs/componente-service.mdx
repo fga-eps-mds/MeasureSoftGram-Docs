@@ -1,0 +1,78 @@
+---
+sidebar_position: 5
+---
+
+# Service
+
+O **Service** é o backend do MeasureSoftGram, escrito em **Django/DRF**. Ele guarda
+e serve os dados da plataforma (métricas, metas de configuração, análises
+realizadas) e mantém o histórico das releases. É o componente que o
+[Front](./componente-front.mdx) e a [Action](./componente-action.mdx) consomem via
+HTTP. Veja o papel dele em [Arquitetura](./arquitetura.mdx).
+
+## Pré-requisitos
+
+- **Docker** e **Docker Compose v2**.
+- Não é preciso instalar Python nem PostgreSQL no host: ambos sobem pelo Compose
+  (Python 3.12, PostgreSQL 18).
+
+## Setup local
+
+O caminho recomendado é o Docker Compose. Primeiro, crie a pasta de variáveis de
+ambiente a partir do template (ela é ignorada pelo git):
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Service.git
+cd 2026.1-MeasureSoftGram-Service
+cp -R env-vars-example env-vars
+```
+
+A pasta `env-vars/` precisa de dois arquivos, cujas chaves são:
+
+- **`.postgres.env`**: `POSTGRES_HOST`, `POSTGRES_DB`, `POSTGRES_USER`,
+  `POSTGRES_PORT`, `POSTGRES_PASSWORD`.
+- **`.service.env`**: `DEBUG`, `CREATE_FAKE_DATA`, `LOGIN_REDIRECT_URL`,
+  `GITHUB_CLIENT_ID`, `GITHUB_SECRET`, `SECRET_KEY`, `AMBIENT_TEST_OR_DEV`.
+
+## Como rodar
+
+```bash
+docker compose up          # ou: docker compose up -d
+```
+
+A API sobe em **http://localhost:8080/**, com a documentação Swagger em
+`/swagger/`. Na subida, o container aplica as migrations e carrega os dados
+iniciais automaticamente.
+
+O `Makefile` traz atalhos: `make up`, `make down`, `make restart`, `make logs`,
+`make migrate`, `make migrations`, `make shell`, `make superuser`, `make bash`.
+
+## Como testar
+
+Dentro do container, via `Makefile`:
+
+```bash
+make test        # pytest -v
+make test-cov    # pytest com cobertura
+make test-smoke  # smoke test de atomicidade
+```
+
+Fora do container, com `uv`:
+
+```bash
+uv sync
+uv run tox
+```
+
+:::note[Conveniências de onboarding em andamento]
+Alguns atalhos ainda não existem e estão sendo acompanhados por issue. Até lá, use
+o caminho que funciona hoje:
+
+- **Seed de dados**: hoje é implícito (o comando `load_initial_data` roda na subida
+  do container). Um `make seed` explícito é acompanhado na
+  [issue #41](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Service/issues/41).
+- **Endpoint de saúde**: um `/health` e healthcheck do container são acompanhados na
+  [issue #42](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Service/issues/42).
+- **Lint local** (`make lint`): acompanhado na
+  [issue #43](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Service/issues/43).
+:::

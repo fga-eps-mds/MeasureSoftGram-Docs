@@ -1,0 +1,66 @@
+---
+sidebar_position: 4
+---
+
+# CLI
+
+A **CLI** é a ferramenta de linha de comando `msgram`: o caminho mais rápido para
+usar o MeasureSoftGram, rodando inteiramente na sua máquina (modo offline). Ela usa
+o [Core](./componente-core.mdx) e o [Parser](./componente-parser.mdx) como
+bibliotecas, no mesmo processo.
+
+Esta página cobre o desenvolvimento da CLI a partir do código-fonte. Se você só
+quer **usar** a ferramenta, vá para [Primeiros passos](./primeiros-passos.mdx)
+(`pip install msgram`) e para a [Referência da CLI](./referencia-cli.mdx).
+
+## Pré-requisitos
+
+- **Python 3.9 ou superior.**
+- `pip`.
+
+## Setup a partir do código-fonte
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-CLI.git
+cd 2026.1-MeasureSoftGram-CLI
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+O `requirements.txt` instala o pacote em modo editável (`-e .`), então o comando
+`msgram` fica disponível apontando para o seu código local:
+
+```bash
+msgram --help
+```
+
+## Como testar
+
+Via **tox** (roda os testes e o lint):
+
+```bash
+tox
+```
+
+Para rodar só os testes unitários com o pytest, ou só o lint:
+
+```bash
+pytest tests/unit/
+tox -e lint
+```
+
+O `tox -e lint` roda o `black` (que **reformata** os arquivos) e o `flake8`.
+
+:::note[Makefile de onboarding em andamento]
+Um `Makefile` com alvos de conveniência (`install`, `test`, `lint`, `format`,
+`build`) está sendo acompanhado na
+[issue #20 da CLI](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-CLI/issues/20).
+Até lá, use os comandos diretos acima.
+:::
+
+## Publicação
+
+A CLI é publicada no PyPI de produção por Trusted Publishing. Como ela depende do
+Core e do Parser, esses dois são publicados antes. O fluxo completo está em
+[Como publicar no PyPI](./publicar-no-pypi.mdx).
