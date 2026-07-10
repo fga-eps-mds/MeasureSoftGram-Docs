@@ -11,6 +11,7 @@ const sidebars: SidebarsConfig = {
     'intro',
     'modelo-de-qualidade',
     'arquitetura',
+    'glossario',
     'como-usar',
     'como-contribuir',
     'repos-ativos',
