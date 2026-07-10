@@ -1,0 +1,159 @@
+---
+sidebar_position: 1
+---
+
+# Referência da CLI
+
+Consulta completa dos comandos da CLI `msgram`: cada subcomando, suas flags,
+os valores aceitos e o que ele produz. Para aprender o fluxo do zero, comece por
+[Primeiros passos](./primeiros-passos.mdx); esta página é material de consulta.
+
+## Uso geral
+
+```bash
+msgram [--theme auto|dark|light] <subcomando> [opções]
+```
+
+| Elemento | Descrição |
+| --- | --- |
+| `--theme` | Tema de contraste do terminal. Valores: `auto` (padrão), `dark`, `light`. Disponível globalmente e por subcomando. |
+| `<subcomando>` | Um dos seis comandos abaixo: `init`, `list`, `extract`, `calculate`, `norm_diff`, `diff`. |
+
+Rode `msgram --help` para o resumo, ou `msgram <subcomando> --help` para as
+opções de um comando específico.
+
+:::note[Diretório padrão]
+Quando você não passa um caminho, a CLI usa `.msgram/` no diretório atual, tanto
+para a configuração (`msgram.json`) quanto para as métricas extraídas. Os exemplos
+abaixo assumem esse padrão.
+:::
+
+## `init`
+
+Cria o arquivo de configuração `.msgram/msgram.json` com o modelo de qualidade
+padrão (características, medidas, pesos e limites definidos no Core).
+
+```bash
+msgram init [-cp DIR]
+```
+
+| Flag | Longa | Padrão | Descrição |
+| --- | --- | --- | --- |
+| `-cp` | `--config_path` | `.msgram` | Diretório onde o `msgram.json` será criado. |
+
+## `list`
+
+Imprime a configuração atual em formato de árvore, útil para inspecionar pesos e
+limites antes de calcular.
+
+```bash
+msgram list [all] [-cp DIR]
+```
+
+| Argumento / Flag | Longa | Padrão | Descrição |
+| --- | --- | --- | --- |
+| `all` | | | Argumento posicional opcional: mostra o arquivo de configuração completo. |
+| `-cp` | `--config_path` | `.msgram` | Diretório com o `msgram.json`. |
+
+## `extract`
+
+Lê os relatórios de análise (SonarQube/SonarCloud em JSON e, opcionalmente,
+dados do GitHub) e produz o arquivo de métricas que o `calculate` consome.
+
+```bash
+msgram extract [-sp DIR] [-ep DIR] [opções de GitHub] [opções de performance]
+```
+
+:::note[Pelo menos uma fonte é obrigatória]
+O `extract` precisa de ao menos uma origem de dados: `-sp` (Sonar), `-gr`
+(repositório GitHub) ou os parâmetros de performance (`-p1`/`-p2`/`-pn`).
+Nenhum deles é obrigatório sozinho, mas rodar `extract` sem nenhum resulta em
+erro.
+:::
+
+| Flag | Longa | Padrão | Descrição |
+| --- | --- | --- | --- |
+| `-sp` | `--sonar_path` | | Diretório com os JSON de análise do Sonar. |
+| `-ep` | `--extracted_path` | `.msgram` | Diretório onde salvar as métricas extraídas. |
+| `-gl` | `--gh_label` | `"US"`, `"User Story"`, `"User Stories"` | Nome do label das issues consideradas na extração de Story Issues. Formato `"XX YY"` com aspas. |
+| `-gw` | `--gh_workflows` | `build` | Nome do workflow considerado no CI Feedback Time. Formato `"XX YY"` com aspas. |
+| `-gd` | `--gh_date_range` | | Intervalo de datas da extração, formato `"dd/mm/yyyy-dd/mm/yyyy"` com aspas. |
+| `-gr` | `--gh_repository` | | Caminho do repositório Git analisado. |
+| `-p1` | `--pe_release_1` | | Caminho do `.csv` da primeira release (dados de performance efficiency). |
+| `-p2` | `--pe_release_2` | | Caminho do `.csv` da segunda release (dados de performance efficiency). |
+| `-pn` | `--pe_repository_name` | | Nome do repositório associado aos dados de performance efficiency. |
+
+:::note[O que o `extract` não faz]
+Ele não roda a análise do Sonar por você: o ponto de partida é o relatório JSON
+já exportado do SonarQube/SonarCloud. Veja o passo a passo em
+[Primeiros passos](./primeiros-passos.mdx).
+:::
+
+## `calculate`
+
+Percorre a hierarquia do modelo (medidas, subcaracterísticas, características e a
+nota final TSQMI) e exporta o resultado.
+
+```bash
+msgram calculate [-ep DIR] [-cp DIR] [-o FORMATO]
+```
+
+| Flag | Longa | Padrão | Descrição |
+| --- | --- | --- | --- |
+| `-ep` | `--extracted_path` | `.msgram` | Diretório com as métricas extraídas. |
+| `-cp` | `--config_path` | `.msgram` | Diretório com o `msgram.json`. |
+| `-o` | `--output_format` | `csv` | Formato de saída. Valores: `csv`, `json`, `tabular`, `raw`, `tree`. |
+
+`tabular` e `tree` são legíveis no terminal; `csv` e `json` geram arquivo para
+consumo posterior; `raw` entrega os valores sem formatação.
+
+## `norm_diff`
+
+Calcula a norma de Frobenius da diferença entre os tensores **RP** (planejado) e
+**RD** (desenvolvido): a percepção quantitativa da discrepância entre os
+requisitos de qualidade planejados e os observados numa release.
+
+```bash
+msgram norm_diff [-rp ARQUIVO] [-rd ARQUIVO]
+```
+
+| Flag | Longa | Descrição |
+| --- | --- | --- |
+| `-rp` | `--rp_path` | Caminho do `.json` com os valores planejados/desejados das características de qualidade da release (as metas). |
+| `-rd` | `--rd_path` | Caminho do `.json` com os valores calculados pelo modelo (o observado/desenvolvido). |
+
+## `diff`
+
+Calcula e interpreta, por característica de qualidade, a diferença entre a
+percepção planejada (**RP**) e a desenvolvida (**RD**).
+
+```bash
+msgram diff [-rd ARQUIVO] [-rp ARQUIVO] [-of FORMATO]
+```
+
+| Flag | Longa | Descrição |
+| --- | --- | --- |
+| `-rd` | `--rd_path` | Caminho do `.json` com os valores calculados pelo modelo (observado/desenvolvido). |
+| `-rp` | `--rp_path` | Caminho do `.json` com os valores planejados/desejados (as metas). |
+| `-of` | `--output_format` | Formato de saída. Valores: `csv`, `json`, `tabular`, `raw`, `tree`. |
+
+:::tip[RP e RD]
+**RP** é o que você planejou para a release; **RD** é o que o modelo mediu do
+código entregue. O `norm_diff` resume a distância num único número; o `diff`
+abre essa distância característica por característica.
+:::
+
+## Fluxo típico
+
+O caminho feliz do modo offline encadeia quatro comandos:
+
+```bash
+msgram init                                        # 1. cria .msgram/msgram.json
+msgram extract -sp analytics-raw-data -ep .msgram  # 2. lê o Sonar, gera métricas
+msgram calculate -ep .msgram -cp .msgram -o tabular # 3. calcula e mostra a nota
+msgram list                                        # (opcional) inspeciona o modelo
+```
+
+Para o passo a passo explicado, veja [Primeiros passos](./primeiros-passos.mdx).
+Para entender o que cada número significa, veja
+[Modelo de qualidade](./modelo-de-qualidade.mdx).
