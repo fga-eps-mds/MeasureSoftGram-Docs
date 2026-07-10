@@ -1,0 +1,55 @@
+---
+sidebar_position: 9
+---
+
+# Plugin VS Code
+
+O **Plugin** é uma extensão de **VS Code** que traz o painel de qualidade do
+MeasureSoftGram para dentro do editor: a nota TSQMI e as características, dashboards
+e a execução da qualidade sem sair do fluxo de trabalho. Repositório:
+[2026.1-MeasureSoftGram-Plugin](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Plugin).
+
+## Como instalar e usar
+
+1. Instale a extensão **MeasureSoftGram** no VS Code e crie uma conta na
+   plataforma.
+2. Clique no ícone do MeasureSoftGram na barra de atividades, ou abra a paleta de
+   comandos (`Ctrl+Shift+P`) e procure o comando do MeasureSoftGram.
+3. Faça login: o token fica guardado no Secret Storage do VS Code.
+
+## Pré-requisitos para desenvolvimento
+
+- **Node.js 20** e **VS Code** (o `package.json` exige `engines.vscode ^1.120.0`).
+- **Docker**, se você for rodar a Action localmente pelo plugin.
+
+## Setup local
+
+```bash
+git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Plugin.git
+cd 2026.1-MeasureSoftGram-Plugin
+npm run install:all
+```
+
+Para desenvolver, abra o repositório no VS Code e use **F5** (Run Extension): o
+editor compila e abre uma janela com o plugin carregado. Para trabalhar só na
+interface (webview) isolada:
+
+```bash
+npm run start:webview
+```
+
+## Como testar
+
+```bash
+npm run test:unit         # testes do Extension Host
+npm run test:webview-run  # testes da webview
+npm run test:all          # os dois conjuntos
+npm run test:coverage     # cobertura do Extension Host
+```
+
+:::note[Pontos a confirmar]
+As configurações de workspace citadas no guia interno (`msgram.serviceUrl`,
+`msgram.productName`) e o identificador exato da extensão publicada no Marketplace
+não puderam ser confirmados no `package.json`/README públicos do repositório
+**(a confirmar)**. Os comandos de setup e teste acima vêm do `package.json` real.
+:::

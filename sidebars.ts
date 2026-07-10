@@ -31,6 +31,22 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Componentes',
+      collapsed: false,
+      items: [
+        'componentes',
+        'componente-core',
+        'componente-parser',
+        'componente-cli',
+        'componente-service',
+        'componente-front',
+        'componente-action',
+        'componente-mcp',
+        'componente-plugin',
+      ],
+    },
+    {
+      type: 'category',
       label: 'Repositorios',
       collapsed: false,
       items: ['repos-ativos', 'repos-originais'],
