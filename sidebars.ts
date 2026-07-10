@@ -27,7 +27,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Primeiros passos',
       collapsed: false,
-      items: ['como-usar'],
+      items: ['primeiros-passos', 'como-usar'],
     },
     {
       type: 'category',
