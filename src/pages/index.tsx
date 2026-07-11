@@ -12,7 +12,7 @@ import styles from './index.module.css';
 const BADGES = [
   {
     href: 'https://pypi.org/project/msgram/',
-    src: 'https://img.shields.io/pypi/v/msgram?label=msgram&color=2E8555',
+    src: 'https://img.shields.io/pypi/v/msgram?label=msgram&color=2B4D6F',
     alt: 'Versao do msgram no PyPI',
   },
   {
