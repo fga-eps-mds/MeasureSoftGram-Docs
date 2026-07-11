@@ -7,7 +7,12 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'MeasureSoftGram',
   tagline: 'Plataforma de medicao e avaliacao de qualidade de software',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.png',
+
+  // Fontes da IDV: Roboto (texto/titulos) + Quattrocento (wordmark do logo).
+  stylesheets: [
+    'https://fonts.googleapis.com/css2?family=Quattrocento:wght@400;700&family=Roboto:wght@400;500;700&display=swap',
+  ],
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -89,6 +94,7 @@ const config: Config = {
       logo: {
         alt: 'Logo do MeasureSoftGram',
         src: 'img/logo.svg',
+        srcDark: 'img/logo-dark.svg',
       },
       items: [
         {
