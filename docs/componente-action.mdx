@@ -41,29 +41,40 @@ Assim ela enxerga a execução já finalizada e coleta a métrica corretamente.
 ## Desenvolvimento local
 
 ```bash
-git clone https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Action.git
-cd 2026.1-MeasureSoftGram-Action
+git clone https://github.com/fga-eps-mds/MeasureSoftGram-Action.git
+cd MeasureSoftGram-Action
 yarn install
 ```
 
-A Action é escrita em TypeScript e compilada com `ncc` para `dist/`. Para variáveis
+A Action é escrita em TypeScript e compilada com `@vercel/ncc` para `dist/`. Para variáveis
 de ambiente locais, copie o template `env-vars-example/.action.env` (chaves:
 `GITHUB_TOKEN`, `SONAR_TOKEN`, `MSGRAM_TOKEN`, `MSGRAM_SERVICE_HOST`).
 
 ## Como testar
 
 ```bash
-yarn run jest --coverage
+yarn run jest --coverage --ci --silent
 yarn lint
+yarn run build
 ```
 
-:::note[Ajustes de tooling em andamento]
-- O runtime declarado no `action.yml` ainda é o **node16**, que o GitHub Actions já
-  marca como deprecado. A migração para node20 é acompanhada na
-  [issue #19](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Action/issues/19).
-- O script `test` roda em modo *watch*, o que atrapalha CI e onboarding; a
-  correção e os alvos de `make` diretos são acompanhados na
-  [issue #20](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Action/issues/20).
-- A padronização do gerenciador de pacotes (yarn x npm) é acompanhada na
-  [issue #21](https://github.com/fga-eps-mds/2026.1-MeasureSoftGram-Action/issues/21).
-:::
+## Release e Deploy de Produção
+
+A entrega da Action segue o modelo de versionamento semântico (`vMAJOR.MINOR.PATCH`) com pipeline automatizado no GitHub Actions:
+
+### 1. Gatilhos na branch de produção (`main`)
+- **Tags Semânticas (`v*.*.*` ou `v*`):** Qualquer tag criada a partir da branch `main` dispara o workflow `.github/workflows/release.yml`.
+- **Releases no GitHub:** Criar ou publicar uma nova release na interface do GitHub também aciona a esteira de build e publicação.
+
+### 2. Etapas da Esteira Automatizada
+1. **Validação Rigorosa:** Execução completa de linter (`yarn lint`) e testes unitários com cobertura (`jest`).
+2. **Compilação do Bundle (`dist/`):** O código TypeScript em `src/` é compilado via `ncc` para `dist/index.js`, garantindo que o bundle versionado esteja 100% íntegro e sincronizado.
+3. **Major Tag Flutuante (`v1`, `v2`):** O workflow identifica a versão major (ex: `v2` a partir de `v2.2.0`) e atualiza automaticamente a tag móvel para o commit recém-compilado. Dessa forma, repositórios clientes que declaram `uses: fga-eps-mds/MeasureSoftGram-Action@v2` recebem melhorias e correções sem quebra de contrato.
+4. **Publicação de Release Notes:** Geração automática das notas de versão e upload dos arquivos de execução como assets da release via `softprops/action-gh-release`.
+
+### 3. Como testar com segurança (Dry-Run)
+Para validar o pipeline sem afetar tags públicas ou releases de produção:
+1. Acesse a aba **Actions** no repositório.
+2. Selecione o workflow **Release & Dist Bundle**.
+3. Clique em **Run workflow**, selecione a branch de trabalho e marque a opção `dry_run: true`.
+4. Todos os passos de validação, testes e compilação serão executados, pulando a movimentação de tags e criação da release pública.
