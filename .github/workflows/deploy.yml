@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_call:
   workflow_dispatch:
 
 permissions:
@@ -17,25 +23,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
 
       - name: Detect package manager
         id: detect-package-manager
         run: |
           if [ -f "${{ github.workspace }}/yarn.lock" ]; then
-            echo "manager=yarn" >> $GITHUB_OUTPUT
-            echo "command=install --frozen-lockfile" >> $GITHUB_OUTPUT
-            echo "runner=yarn" >> $GITHUB_OUTPUT
+            echo "manager=yarn" >> "$GITHUB_OUTPUT"
+            echo "command=install --frozen-lockfile" >> "$GITHUB_OUTPUT"
+            echo "runner=yarn" >> "$GITHUB_OUTPUT"
             exit 0
           elif [ -f "${{ github.workspace }}/package.json" ]; then
-            echo "manager=npm" >> $GITHUB_OUTPUT
-            echo "command=ci" >> $GITHUB_OUTPUT
-            echo "runner=npm run" >> $GITHUB_OUTPUT
+            echo "manager=npm" >> "$GITHUB_OUTPUT"
+            echo "command=ci" >> "$GITHUB_OUTPUT"
+            echo "runner=npm run" >> "$GITHUB_OUTPUT"
             exit 0
           else
             echo "Unable to determine package manager" >&2
@@ -43,26 +50,77 @@ jobs:
           fi
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: 20
           cache: ${{ steps.detect-package-manager.outputs.manager }}
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
 
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+
+      - name: Montar versões Docusaurus (main = Oficial por Major, develop = Em desenvolvimento)
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          PR_COMMIT="$(git rev-parse HEAD)"
+
+          # 1. Descobrir versão atual na origin/main (ex: 1.1.0 -> Major=1, Series=1.1)
+          MAIN_VER="$(git show origin/main:package.json | node -e "const pkg = JSON.parse(require('fs').readFileSync(0, 'utf8')); process.stdout.write(pkg.version || '1.0.0');")"
+          if [ "${MAIN_VER}" = "0.0.0" ]; then
+            MAIN_VER="1.0.0"
+          fi
+          MAIN_MAJOR="$(echo "${MAIN_VER}" | cut -d. -f1)"
+          MAIN_SERIES="$(echo "${MAIN_VER}" | cut -d. -f1,2)"
+
+          # Limpar versões estáticas para manter apenas 1 versão por Major (novas minors substituem a anterior)
+          rm -rf versioned_docs versioned_sidebars versions.json
+
+          # 2. Se existir alguma Major anterior (< MAIN_MAJOR), congelar APENAS a última versão de cada Major passada
+          BASELINE_COMMIT="cf0d77495bb442a8856da4b255e8e4bff6be0129"
+          for (( MAJ=1; MAJ<MAIN_MAJOR; MAJ++ )); do
+            LATEST_MAJ_TAG="$(git tag -l "v${MAJ}.*" --sort=-v:refname | head -n 1)"
+            if [ -n "${LATEST_MAJ_TAG}" ]; then
+              PAST_SERIES="$(echo "${LATEST_MAJ_TAG#v}" | cut -d. -f1,2)"
+              echo "Congelando última versão da Major ${MAJ} (${PAST_SERIES}) a partir da tag ${LATEST_MAJ_TAG}..."
+              git checkout "${LATEST_MAJ_TAG}" -- docs sidebars.ts
+              yarn docusaurus docs:version "${PAST_SERIES}"
+            elif [ "${MAJ}" -eq 1 ]; then
+              echo "Congelando baseline 1.0 como representante da Major 1..."
+              git checkout "${BASELINE_COMMIT}" -- docs sidebars.ts
+              yarn docusaurus docs:version "1.0"
+            fi
+          done
+
+          # 3. Gerar a versão oficial ativa da Major atual a partir da branch main (substituindo minors antigas da mesma Major)
+          echo "Gerando versão oficial ativa (${MAIN_SERIES}) a partir da branch main (${MAIN_VER})..."
+          git checkout origin/main -- docs sidebars.ts
+          yarn docusaurus docs:version "${MAIN_SERIES}"
+
+          # 4. Restaurar a branch develop (ou o commit do PR) em docs/ para servir como "Em desenvolvimento" (/docs/next)
+          if [ "${EVENT_NAME}" = "pull_request" ]; then
+            echo "Carregando docs/ do Pull Request (${PR_COMMIT}) em /docs/next..."
+            git checkout "${PR_COMMIT}" -- docs sidebars.ts
+          else
+            echo "Carregando docs/ da branch origin/develop em /docs/next (Em desenvolvimento)..."
+            git checkout origin/develop -- docs sidebars.ts
+          fi
 
       - name: Build website
         run: ${{ steps.detect-package-manager.outputs.runner }} build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: ./build
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -71,4 +129,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
