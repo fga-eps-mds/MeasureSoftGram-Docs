@@ -40,26 +40,17 @@ GIT_USER=<Your GitHub username> yarn deploy
 
 If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
 
-## Versionamento da documentacao
+## Versionamento da documentação (Automatizado via CI/CD)
 
-Esta documentacao e **unica e versionada**: em vez de criar um site novo a cada
-semestre, todos os ciclos contribuem para este mesmo repositorio e as versoes
-estaveis ficam congeladas no historico do site.
+Esta documentação é **única e versionada**: em vez de criar um site novo a cada semestre, todos os ciclos contribuem para este mesmo repositório e as versões são montadas automaticamente pelo workflow `.github/workflows/deploy.yml`:
 
-Como funciona:
+- **No dia a dia (PRs para a `develop`):**
+  - Edite sempre apenas a pasta `docs/` (e `sidebars.ts`).
+  - Todo merge na branch **`develop`** publica automaticamente o site atualizando a versão **"Em desenvolvimento"** (servida em `/docs/next`), sem alterar a versão oficial padrão.
+- **Em Produção (Promoção `develop` $\rightarrow$ `main` + Google Release Please):**
+  - Ao fazer merge da `develop` na **`main`**, o workflow `.github/workflows/release.yml` (Google Release Please) abre automaticamente o PR de release (`chore(main): release X.Y.Z`) atualizando o `package.json` e o `CHANGELOG.md`.
+  - **Substituição de *Minors* e Histórico por *Major*:**
+    - Dentro de uma mesma *Major* (ex.: `1.0` $\rightarrow$ `1.1` $\rightarrow$ `1.2`), a nova versão **substitui** a *minor* anterior no seletor do site e passa a ser a única versão oficial ativa daquela *Major* (evitando poluir o menu e duplicar pastas no repositório).
+    - Quando houver incremento de *Major* (ex.: `2.0`), o workflow preserva automaticamente no menu de histórico apenas a **última versão consolidada de cada *Major* anterior** (ex.: `1.x`), enquanto a nova *Major* (`2.0`) assume como versão oficial padrão.
 
-- A pasta `docs/` e a versao **em desenvolvimento** (servida em `/docs/next`). E
-  nela que todo trabalho novo acontece.
-- As versoes estaveis ficam em `versioned_docs/` e sao selecionadas pelo seletor
-  de versao no topo do site. A versao estavel padrao e definida por `lastVersion`
-  em `docusaurus.config.ts`.
 
-Para congelar uma nova versao estavel (por exemplo, ao fechar um ciclo), rode:
-
-```bash
-yarn docusaurus docs:version <numero>
-```
-
-Isso copia o conteudo atual de `docs/` para `versioned_docs/version-<numero>/` e
-registra a versao em `versions.json`. Depois, atualize `lastVersion` em
-`docusaurus.config.ts` se a nova versao deve passar a ser a servida por padrao.

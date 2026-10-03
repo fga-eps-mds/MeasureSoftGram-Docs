@@ -66,9 +66,8 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           editUrl:
             'https://github.com/fga-eps-mds/MeasureSoftGram-Docs/tree/main/',
-          // Doc unica versionada: a 1.0 e a versao estavel servida por padrao;
-          // o conteudo em edicao (pasta docs/) fica sob /next ate a proxima versao.
-          lastVersion: '1.0',
+          // Doc unica versionada: a primeira versao de versions.json (gerada da main)
+          // e servida por padrao; o conteudo da develop (pasta docs/) fica sob /docs/next.
           versions: {
             current: {
               label: 'Em desenvolvimento',
